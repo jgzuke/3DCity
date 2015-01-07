@@ -1,6 +1,7 @@
 package com.ThreeDCity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -71,35 +72,71 @@ public final class Graphics extends View
 	 */
 	protected void drawPanel(int[][] rawPanel, ViewRotations view, Canvas g)
 	{
-		int[][] panel = rawPanel.clone();
-		int[][] rotations = getRotations(panel, view);	// fixes panel so it fits on screen
-														// and returns rotations to points
-		Path path = new Path();
-		int[] point = projectOnView(rotations[3], view);
-		path.moveTo(point[0], point[1]);				// start at last corner
-		for(int i = 0; i < 4; i++)
+		int[][] panel = rawPanel.clone();				// fixes panel so it fits on screen
+		int[][] rotations = getRotationSet(panel, view);	// and returns rotations to points
+														
+		if(rotations != null)							// if panel was on screen
 		{
-			point = projectOnView(rotations[i], view);	// make lines to each corner
-			path.lineTo(point[0], point[1]);
+			Path path = new Path();
+			int[] point = projectOnView(rotations[3], view);
+			path.moveTo(point[0], point[1]);				// start at last corner
+			for(int i = 0; i < 4; i++)
+			{
+				point = projectOnView(rotations[i], view);	// make lines to each corner
+				path.lineTo(point[0], point[1]);
+			}
+			g.drawPath(path, paint);						// draws polygon
 		}
-		g.drawPath(path, paint);						// draws polygon
 	}
 	/**
 	 * fixes panel so it can be drawn in bounds
 	 * @param oldPanel	panel sent to function
 	 * @return			panel that can be drawn right
 	 */
-	protected int[][] getRotations(int[][] oldPanel, ViewRotations view)
+	protected int[][] getRotationSet(int[][] panel, ViewRotations view)
 	{
-		int [][] rotations = {	getRotationsToPoint(oldPanel[0], view), 
-								getRotationsToPoint(oldPanel[1], view), 
-								getRotationsToPoint(oldPanel[2], view), 
-								getRotationsToPoint(oldPanel[3], view)};
+		int [][] rotations = {	getRotationsToPoint(panel[0], view), 
+								getRotationsToPoint(panel[1], view), 
+								getRotationsToPoint(panel[2], view), 
+								getRotationsToPoint(panel[3], view)};
+		fixPanelRotationSet(rotations, view);
+		return rotations;
+	}
+	/**
+	 * fixes rotations of a panel to draw on screen, if panel not visible returns null
+	 * @param rotations	the rotations to fix
+	 * @param view		the view to fit rotations into
+	 */
+	protected void fixPanelRotationSet(int[][] rotations, ViewRotations view)
+	{
+		boolean anythingOnScreen = false;
+		boolean [] onScreen = new boolean[4];
+		Arrays.fill(onScreen, false);
 		for(int i = 0; i < 4; i++)
 		{
-			
+			if(rotationSetOnScreen(rotations[i], view))
+			{
+				anythingOnScreen = true;
+				onScreen[i] = true;
+			}
 		}
-		return rotations;
+		if(!anythingOnScreen)
+		{
+			rotations = null;
+			return;
+		}
+				// IF AT LEAST PART OF SQUARE ON SCREEN
+		
+	}
+	/**
+	 * returns whether the rotation set is in players view
+	 * @param rotationSet	the rotation set to check
+	 * @param view			the view to check if it fits in
+	 * @return				whether it fits in players view
+	 */
+	protected boolean rotationSetOnScreen(int[] rotationSet, ViewRotations view)
+	{
+		return false;
 	}
 	/**
 	 * returns rotations 	to a point
