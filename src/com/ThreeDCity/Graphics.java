@@ -53,6 +53,15 @@ public final class Graphics extends View
 	protected int[] orderPanels(ArrayList<int[][]> panels)
 	{
 		int [] orderToDraw = new int[panels.size()];
+		double [] playerPos = control.player.getLocation();
+		for(int i = 0; i < panels.size(); i++)
+		{
+			int[] center = panels.get(i)[4];
+			double distance = Math.sqrt(Math.pow(center[0]-playerPos[0], 2)+	// X-Direction
+										Math.pow(center[1]-playerPos[1], 2)+	// Y-Direction
+										Math.pow(center[2]-playerPos[2], 2));	// Z-Direction
+			orderToDraw[i] = i;
+		}
 		//TODO
 		return orderToDraw;
 	}
@@ -91,11 +100,20 @@ public final class Graphics extends View
 	 * @param viewPanel	view panel to project onto
 	 * @return			x and y position of point on screen
 	 */
-	protected int [] projectOnView(int [] point, ViewRotations view)
+	protected int [] projectOnView(int [] coordinates, ViewRotations view)
 	{
-		int [] coordinates = new int[2];
-		//TODO
-		return coordinates;
+		double [] pCoordinates = control.player.getLocation();
+		int [] rotations = new int[2];
+		int [] position = new int[2];
+		int xDif = (int)(coordinates[0]-pCoordinates[0]);
+		int yDif = (int)(coordinates[1]-pCoordinates[1]);
+		int xyDif = (int)(Math.sqrt(Math.pow(xDif, 2)+Math.pow(yDif, 2)));
+		int zDif = (int)(coordinates[2]-pCoordinates[2]);
+		rotations[0] = (int)Math.atan(yDif/xDif);
+		rotations[1] = (int)Math.atan(zDif/xyDif);
+		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel);
+		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel);
+		return position;
 	}
 	public class ViewRotations {
 	    protected double topRot;
