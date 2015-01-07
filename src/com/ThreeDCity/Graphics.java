@@ -72,17 +72,16 @@ public final class Graphics extends View
 	protected void drawPanel(int[][] rawPanel, ViewRotations view, Canvas g)
 	{
 		int[][] panel = rawPanel.clone();
-		fixPanel(panel);								// fixes panel so it fits on screen
-		
+		int[][] rotations = getRotations(panel, view);	// fixes panel so it fits on screen
+														// and returns rotations to points
 		Path path = new Path();
-		int[] point = projectOnView(rawPanel[3], view);
+		int[] point = projectOnView(rotations[3], view);
 		path.moveTo(point[0], point[1]);				// start at last corner
 		for(int i = 0; i < 4; i++)
 		{
-			point = projectOnView(rawPanel[i], view);	// make lines to each corner
+			point = projectOnView(rotations[i], view);	// make lines to each corner
 			path.lineTo(point[0], point[1]);
 		}
-		
 		g.drawPath(path, paint);						// draws polygon
 	}
 	/**
@@ -90,27 +89,45 @@ public final class Graphics extends View
 	 * @param oldPanel	panel sent to function
 	 * @return			panel that can be drawn right
 	 */
-	protected void fixPanel(int[][] oldPanel)
+	protected int[][] getRotations(int[][] oldPanel, ViewRotations view)
 	{
-		//TODO
+		int [][] rotations = {	getRotationsToPoint(oldPanel[0], view), 
+								getRotationsToPoint(oldPanel[1], view), 
+								getRotationsToPoint(oldPanel[2], view), 
+								getRotationsToPoint(oldPanel[3], view)};
+		for(int i = 0; i < 4; i++)
+		{
+			
+		}
+		return rotations;
 	}
 	/**
-	 * projects a point onto players view and returns x, y screen coordinates
-	 * @param point		point to project
-	 * @param viewPanel	view panel to project onto
-	 * @return			x and y position of point on screen
+	 * returns rotations 	to a point
+	 * @param coordinates 	coordinates of point
+	 * @param view			view being projected onto
+	 * @return				rotations to point
 	 */
-	protected int [] projectOnView(int [] coordinates, ViewRotations view)
+	protected int[] getRotationsToPoint(int [] coordinates, ViewRotations view)
 	{
 		double [] pCoordinates = control.player.getLocation();
 		int [] rotations = new int[2];
-		int [] position = new int[2];
 		int xDif = (int)(coordinates[0]-pCoordinates[0]);
 		int yDif = (int)(coordinates[1]-pCoordinates[1]);
 		int xyDif = (int)(Math.sqrt(Math.pow(xDif, 2)+Math.pow(yDif, 2)));
 		int zDif = (int)(coordinates[2]-pCoordinates[2]);
 		rotations[0] = (int)Math.atan(yDif/xDif);
 		rotations[1] = (int)Math.atan(zDif/xyDif);
+		return rotations;
+	}
+	/**
+	 * projects a set of rotations onto players view and returns x, y screen coordinates
+	 * @param point		rotations to project
+	 * @param viewPanel	view panel to project onto
+	 * @return			x and y position of point on screen
+	 */
+	protected int [] projectOnView(int [] rotations, ViewRotations view)
+	{
+		int [] position = new int[2];
 		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel);
 		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel);
 		return position;
