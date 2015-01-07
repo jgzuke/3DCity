@@ -9,8 +9,8 @@ public final class Player
 	protected int x = 0;
 	protected int y = 0;
 	protected int z = 190; //height of eyes
-	protected int hRotation = 0; //looking directly along x axis
-	protected int zRotation = 0; //looking directly forward
+	protected int hRotation = 0; //looking directly along x axis , -ve is left
+	protected int zRotation = 0; //looking directly forward, -ve is down
 	private Controller control;
 	public Player(Controller controlSet)
 	{

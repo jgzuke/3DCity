@@ -1,7 +1,10 @@
 package com.ThreeDCity;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.View;
 
 /*
@@ -15,6 +18,7 @@ public final class Graphics extends View
 	protected double zoom;
 	double screenWidth, screenHeight;
 	private Controller control;
+	private Paint paint;
 	public Graphics(Context contextSet, Controller controlSet, double [] dimensions)
 	{
 		super(contextSet);
@@ -32,32 +36,57 @@ public final class Graphics extends View
 	@Override
 	protected void onDraw(Canvas g)
 	{
-		double[][] viewPanel =  getViewPanel();
+		ViewRotations view =  getView();
+		ArrayList<int[][]> panels = control.objects.panels;
+		for(int i = 0; i < panels.size(); i++)
+		{
+			drawPanel(panels.get(i));
+		}
+		g.drawRect(0, (int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
+	}
+	/**
+	 * draws panel sent to function
+	 * @param panel the panel to draw
+	 */
+	protected void drawPanel(int[][] panel)
+	{
 		
 	}
+	/**
+	 * fixes panel so it can be drawn in bounds
+	 * @param oldPanel	panel sent to function
+	 * @return			panel that can be drawn right
+	 */
 	protected int[][] fixPanel(int[][] oldPanel)
 	{
 		int[][] panel = oldPanel.clone();
-		
+		//TODO
 		return panel;
 	}
 	/**
-	 * projects a point onto players viewPanel and returns x, y screen coordinates
+	 * projects a point onto players view and returns x, y screen coordinates
 	 * @param point		point to project
 	 * @param viewPanel	view panel to project onto
 	 * @return			x and y position of point on screen
 	 */
-	protected int [] projectOnViewPanel(double [] point, double [][] viewPanel)
+	protected int [] projectOnView(double [] point, ViewRotations view)
 	{
 		int [] coordinates = new int[2];
-		
+		//TODO
 		return coordinates;
 	}
+	public class ViewRotations {
+	    protected double topRot;
+	    protected double bottomRot;
+	    protected double leftRot;
+	    protected double rightRot;
+	    protected double distanceFromPanel;
+	}
 	/**
-	 * returns a panel objects will project onto
-	 * @return the virtual panel which your phone sees through
+	 * returns the rotations to each end of the screen
+	 * @return the rotations for top right etc.
 	 */
-	protected double[][] getViewPanel()
+	protected ViewRotations getView()
 	{
 		double distanceFromPanel = 5; //make this some function of zoom.
 		double viewSize = 1/200;
@@ -65,35 +94,13 @@ public final class Graphics extends View
 		double panelHeight = screenHeight*viewSize; // width and height are half full width/height
 		double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
 		double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
-		double distanceToCorner = Math.sqrt(Math.pow(distanceFromPanel, 2)+ // get distance to each corner
-											Math.pow(panelWidth, 2)+
-											Math.pow(panelHeight, 2));
-		
-		// find four corners for a view to project on
 		double[] rotations = control.player.getRotation();
-		
-		double[] topLeft = control.player.getLocation().clone();
-		topLeft[0]+= distanceToCorner*Math.cos(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
-		topLeft[1]+= distanceToCorner*Math.sin(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
-		topLeft[2]+= distanceToCorner*Math.sin(rotations[1]+rotToPanelTop);
-		
-		double[] topRight = control.player.getLocation().clone();
-		topRight[0]+= distanceToCorner*Math.cos(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
-		topRight[1]+= distanceToCorner*Math.sin(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
-		topRight[2]+= distanceToCorner*Math.sin(rotations[1]+rotToPanelTop);
-		
-		double[] botLeft = control.player.getLocation().clone();
-		botLeft[0]+= distanceToCorner*Math.cos(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
-		botLeft[1]+= distanceToCorner*Math.sin(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
-		botLeft[2]+= distanceToCorner*Math.sin(rotations[1]-rotToPanelTop);
-		
-		double[] botRight = control.player.getLocation().clone();
-		botRight[0]+= distanceToCorner*Math.cos(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
-		botRight[1]+= distanceToCorner*Math.sin(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
-		botRight[2]+= distanceToCorner*Math.sin(rotations[1]-rotToPanelTop);
-		
-		// view pane is the square on which everything will 'project' going towards players x, y, z position
-		double [][] viewPanel = {topLeft, topRight, botLeft, botRight}; // four corners, each with x, y, z
-		return viewPanel;
+		ViewRotations view = new ViewRotations();
+		view.topRot = rotations[1]+rotToPanelTop;
+		view.bottomRot = rotations[1]-rotToPanelTop;
+		view.rightRot = rotations[0]+rotToPanelSide;
+		view.leftRot = rotations[0]-rotToPanelSide;
+		view.distanceFromPanel = distanceFromPanel;
+		return view;
 	}
 }
