@@ -16,16 +16,27 @@ public final class Player
 	{
 		control = controlSet;
 	}
+	/**
+	 * returns players x, y, z
+	 * @return x, y, z coordinates
+	 */
 	protected double[] getLocation()
 	{
 		double[] location = {x, y, z};
 		return location;
 	}
+	/**
+	 *  returns players horizontal and vertical rotation
+	 * @return horizontal and vertical rotation
+	 */
 	protected double[] getRotation()
 	{
-		double[] location = {x, y, z};
-		return location;
+		double[] rotation = {hRotation, zRotation};
+		return rotation;
 	}
+	/**
+	 * what actions player takes every frame
+	 */
 	protected void frameCall()
 	{
 		

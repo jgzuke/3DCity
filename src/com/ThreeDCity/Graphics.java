@@ -26,13 +26,36 @@ public final class Graphics extends View
 	{
 		invalidate();
 	}
+	/**
+	 * 
+	 */
 	@Override
 	protected void onDraw(Canvas g)
 	{
+		double[][] viewPanel =  getViewPanel();
 		
 	}
-	/*
+	protected int[][] fixPanel(int[][] oldPanel)
+	{
+		int[][] panel = oldPanel.clone();
+		
+		return panel;
+	}
+	/**
+	 * projects a point onto players viewPanel and returns x, y screen coordinates
+	 * @param point		point to project
+	 * @param viewPanel	view panel to project onto
+	 * @return			x and y position of point on screen
+	 */
+	protected int [] projectOnViewPanel(double [] point, double [][] viewPanel)
+	{
+		int [] coordinates = new int[2];
+		
+		return coordinates;
+	}
+	/**
 	 * returns a panel objects will project onto
+	 * @return the virtual panel which your phone sees through
 	 */
 	protected double[][] getViewPanel()
 	{
@@ -45,6 +68,7 @@ public final class Graphics extends View
 		double distanceToCorner = Math.sqrt(Math.pow(distanceFromPanel, 2)+ // get distance to each corner
 											Math.pow(panelWidth, 2)+
 											Math.pow(panelHeight, 2));
+		
 		// find four corners for a view to project on
 		double[] rotations = control.player.getRotation();
 		
@@ -67,7 +91,6 @@ public final class Graphics extends View
 		botRight[0]+= distanceToCorner*Math.cos(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
 		botRight[1]+= distanceToCorner*Math.sin(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
 		botRight[2]+= distanceToCorner*Math.sin(rotations[1]-rotToPanelTop);
-		
 		
 		// view pane is the square on which everything will 'project' going towards players x, y, z position
 		double [][] viewPanel = {topLeft, topRight, botLeft, botRight}; // four corners, each with x, y, z
