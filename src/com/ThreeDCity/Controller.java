@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 
 /*
- * Control runs frames, controls grphics redraw
+ * Control runs frames, controls graphics redraw, etc
  * 
  */
 public final class Controller
@@ -21,7 +21,7 @@ public final class Controller
 		public void run()
 		{
 			frameCall();
-			mHandler.postDelayed(this, 40);
+			mHandler.postDelayed(this, 50);
 		}
 	};	
 	/** 
