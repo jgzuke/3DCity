@@ -31,7 +31,7 @@ public final class Controller
 	{
 		context = contextSet;
 		activity = activitySet;
-		graphics = new Graphics(contextSet, dimensions);
+		graphics = new Graphics(contextSet, this, dimensions);
 		player = new Player(this);
 		objects = new Objects(this);
 	}

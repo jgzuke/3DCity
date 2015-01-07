@@ -11,7 +11,6 @@ public final class Player
 	protected int z = 190; //height of eyes
 	protected int hRotation = 0; //looking directly along x axis
 	protected int zRotation = 0; //looking directly forward
-	protected int tilt = 0; // tilting head to one side or other
 	private Controller control;
 	public Player(Controller controlSet)
 	{
@@ -26,5 +25,9 @@ public final class Player
 	{
 		double[] location = {x, y, z};
 		return location;
+	}
+	protected void frameCall()
+	{
+		
 	}
 }

@@ -46,12 +46,29 @@ public final class Graphics extends View
 											Math.pow(panelWidth, 2)+
 											Math.pow(panelHeight, 2));
 		// find four corners for a view to project on
-		double
+		double[] rotations = control.player.getRotation();
+		
 		double[] topLeft = control.player.getLocation().clone();
-		topLeft.
+		topLeft[0]+= distanceToCorner*Math.cos(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
+		topLeft[1]+= distanceToCorner*Math.sin(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
+		topLeft[2]+= distanceToCorner*Math.sin(rotations[1]+rotToPanelTop);
+		
 		double[] topRight = control.player.getLocation().clone();
+		topRight[0]+= distanceToCorner*Math.cos(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
+		topRight[1]+= distanceToCorner*Math.sin(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]+rotToPanelTop);
+		topRight[2]+= distanceToCorner*Math.sin(rotations[1]+rotToPanelTop);
+		
 		double[] botLeft = control.player.getLocation().clone();
+		botLeft[0]+= distanceToCorner*Math.cos(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
+		botLeft[1]+= distanceToCorner*Math.sin(rotations[0]-rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
+		botLeft[2]+= distanceToCorner*Math.sin(rotations[1]-rotToPanelTop);
+		
 		double[] botRight = control.player.getLocation().clone();
+		botRight[0]+= distanceToCorner*Math.cos(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
+		botRight[1]+= distanceToCorner*Math.sin(rotations[0]+rotToPanelSide)*Math.cos(rotations[1]-rotToPanelTop);
+		botRight[2]+= distanceToCorner*Math.sin(rotations[1]-rotToPanelTop);
+		
+		
 		// view pane is the square on which everything will 'project' going towards players x, y, z position
 		double [][] viewPanel = {topLeft, topRight, botLeft, botRight}; // four corners, each with x, y, z
 		return viewPanel;
