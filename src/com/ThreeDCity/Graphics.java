@@ -73,14 +73,15 @@ public final class Graphics extends View
 	protected void drawPanel(int[][] rawPanel, ViewRotations view, Canvas g)
 	{
 		int[][] panel = rawPanel.clone();				// fixes panel so it fits on screen
-		int[][] rotations = getRotationSet(panel, view);	// and returns rotations to points
+		double[][] rotations = getRotationSet(panel, view);	// and returns rotations to points
 														
 		if(rotations != null)							// if panel was on screen
 		{
 			Path path = new Path();
-			int[] point = projectOnView(rotations[3], view);
+			int numPoints = rotations.length;
+			int[] point = projectOnView(rotations[numPoints-1], view);
 			path.moveTo(point[0], point[1]);				// start at last corner
-			for(int i = 0; i < 4; i++)
+			for(int i = 0; i < numPoints; i++)
 			{
 				point = projectOnView(rotations[i], view);	// make lines to each corner
 				path.lineTo(point[0], point[1]);
@@ -93,9 +94,9 @@ public final class Graphics extends View
 	 * @param oldPanel	panel sent to function
 	 * @return			panel that can be drawn right
 	 */
-	protected int[][] getRotationSet(int[][] panel, ViewRotations view)
+	protected double[][] getRotationSet(int[][] panel, ViewRotations view)
 	{
-		int [][] rotations = {	getRotationsToPoint(panel[0], view), 
+		double [][] rotations = {	getRotationsToPoint(panel[0], view), 
 								getRotationsToPoint(panel[1], view), 
 								getRotationsToPoint(panel[2], view), 
 								getRotationsToPoint(panel[3], view)};
@@ -107,7 +108,7 @@ public final class Graphics extends View
 	 * @param rotations	the rotations to fix
 	 * @param view		the view to fit rotations into
 	 */
-	protected void fixPanelRotationSet(int[][] rotations, ViewRotations view)
+	protected void fixPanelRotationSet(double[][] rotations, ViewRotations view)
 	{
 		boolean anythingOnScreen = false;
 		boolean [] onScreen = new boolean[4];
@@ -126,7 +127,8 @@ public final class Graphics extends View
 			return;
 		}
 				// IF AT LEAST PART OF SQUARE ON SCREEN
-		
+		//TODO
+		//if()
 	}
 	/**
 	 * returns whether the rotation set is in players view
@@ -134,9 +136,25 @@ public final class Graphics extends View
 	 * @param view			the view to check if it fits in
 	 * @return				whether it fits in players view
 	 */
-	protected boolean rotationSetOnScreen(int[] rotationSet, ViewRotations view)
+	protected boolean rotationSetOnScreen(double[] rotationSet, ViewRotations view)
 	{
-		return false;
+		double hRot = rotationSet[0];
+		double vRot = rotationSet[1];
+		if(view.leftRot>view.rightRot)		// view is split across the 180/-180 thing
+		{
+			if(hRot>view.rightRot||hRot<view.leftRot) return false;
+		} else
+		{
+			if(!(hRot<view.rightRot||hRot>view.leftRot)) return false;
+		}
+		if(view.bottomRot>view.topRot)		// view is split across the 180/-180 thing
+		{
+			if(vRot>view.topRot||vRot<view.bottomRot) return false;
+		} else
+		{
+			if(!(vRot<view.topRot||vRot>view.bottomRot)) return false;
+		}
+		return true;
 	}
 	/**
 	 * returns rotations 	to a point
@@ -144,16 +162,16 @@ public final class Graphics extends View
 	 * @param view			view being projected onto
 	 * @return				rotations to point
 	 */
-	protected int[] getRotationsToPoint(int [] coordinates, ViewRotations view)
+	protected double[] getRotationsToPoint(int [] coordinates, ViewRotations view)
 	{
 		double [] pCoordinates = control.player.getLocation();
-		int [] rotations = new int[2];
+		double [] rotations = new double[2];
 		int xDif = (int)(coordinates[0]-pCoordinates[0]);
 		int yDif = (int)(coordinates[1]-pCoordinates[1]);
 		int xyDif = (int)(Math.sqrt(Math.pow(xDif, 2)+Math.pow(yDif, 2)));
 		int zDif = (int)(coordinates[2]-pCoordinates[2]);
-		rotations[0] = (int)Math.atan(yDif/xDif);
-		rotations[1] = (int)Math.atan(zDif/xyDif);
+		rotations[0] = Math.atan(yDif/xDif);
+		rotations[1] = Math.atan(zDif/xyDif);
 		return rotations;
 	}
 	/**
@@ -162,7 +180,7 @@ public final class Graphics extends View
 	 * @param viewPanel	view panel to project onto
 	 * @return			x and y position of point on screen
 	 */
-	protected int [] projectOnView(int [] rotations, ViewRotations view)
+	protected int [] projectOnView(double [] rotations, ViewRotations view)
 	{
 		int [] position = new int[2];
 		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel);
