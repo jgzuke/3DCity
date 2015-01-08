@@ -25,6 +25,7 @@ public final class Graphics extends View
 		screenWidth = dimensions[0];
 		screenHeight = dimensions[1];
 		control = controlSet;
+		paint = new Paint();
 	}
 	protected void frameCall()
 	{
@@ -104,25 +105,6 @@ public final class Graphics extends View
 		}
 	}
 	/*
-	 * object containing all data about a panel neccesary to fix points onto screen
-	 */
-	public class PanelWithDirection
-	{
-	    protected double topRot;
-	    protected double bottomRot;
-	    protected double leftRot;
-	    protected double rightRot;
-	    protected double distanceFromPanel;
-	    /**
-	     * constructor takes panel points and labels each point with direction vectors
-	     * this lets you find out where a single point sticks when forced on screen
-	     */
-	    public PanelWithDirection(double[][] rotations)
-	    {
-	    	
-	    }
-	}
-	/*
 	 * object that stores a point with vectors pointing to the two closest points on rect
 	 */
 	public class PointWithVector
@@ -140,16 +122,15 @@ public final class Graphics extends View
 	    	if(index == 0)
 	    	{
 	    		previous = panelHandle.panel[3];
-	    	} else
+	    		next = panelHandle.panel[1];
+	    	} else if(index == 3)
 	    	{
-	    		previous = panelHandle.panel[index-1];
-	    	}
-	    	if(index == 3)
-	    	{
+	    		previous = panelHandle.panel[2];
 	    		next = panelHandle.panel[0];
 	    	} else
 	    	{
-	    		next = panelHandle.panel[index-1];
+	    		previous = panelHandle.panel[index-1];
+	    		next = panelHandle.panel[index+1];
 	    	}
 			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location, view), view))
 			{
@@ -312,9 +293,9 @@ public final class Graphics extends View
 		{
 			graphics = graphicsSet;
 			panel = panelSet;
-			for(int i = 0; i < 4; i+=2)
+			for(int i = 0; i < 4; i++)
 			{
-				points[i] = new PointWithVector(this, i, view);
+				points[i*2] = new PointWithVector(this, i, view);
 			}
 		}
 		protected void deletePoint(int index)
@@ -371,7 +352,7 @@ public final class Graphics extends View
 		return true;
 	}
 	/**
-	 * returns rotations 	to a point
+	 * returns rotations to a point
 	 * @param coordinates 	coordinates of point
 	 * @param view			view being projected onto
 	 * @return				rotations to point
@@ -380,10 +361,12 @@ public final class Graphics extends View
 	{
 		double [] pCoordinates = control.player.getLocation();
 		double [] rotations = new double[2];
-		int xDif = (int)(coordinates[0]-pCoordinates[0]);
-		int yDif = (int)(coordinates[1]-pCoordinates[1]);
-		int xyDif = (int)(Math.sqrt(Math.pow(xDif, 2)+Math.pow(yDif, 2)));
-		int zDif = (int)(coordinates[2]-pCoordinates[2]);
+		double xDif = (coordinates[0]-pCoordinates[0]);
+		double yDif = (coordinates[1]-pCoordinates[1]);
+		double xyDif = (Math.sqrt(Math.pow(xDif, 2)+Math.pow(yDif, 2)));
+		double zDif = (coordinates[2]-pCoordinates[2]);
+		if(xDif == 0) xDif += 0.000001;
+		if(xyDif == 0) xyDif += 0.000001;
 		rotations[0] = Math.atan(yDif/xDif);
 		rotations[1] = Math.atan(zDif/xyDif);
 		return rotations;
