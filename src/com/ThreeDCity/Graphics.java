@@ -88,17 +88,16 @@ public final class Graphics extends View
 	protected void drawPanel(int[][] rawPanel, ViewRotations view, Canvas g)
 	{
 		int[][] panel = rawPanel.clone();				// fixes panel so it fits on screen
-		double[][] rotations = getRotationSet(panel, view);	// and returns rotations to points
-														
-		if(rotations != null)							// if panel was on screen
+		ArrayList<double[]> rotations = getRotationSet(panel, view);	// and returns rotations to points
+		if(rotations.size() > 0)							// if panel was on screen
 		{
 			Path path = new Path();
-			int numPoints = rotations.length;
-			int[] point = projectOnView(rotations[numPoints-1], view);
+			int numPoints = rotations.size();
+			int[] point = projectOnView(rotations.get(numPoints-1), view);
 			path.moveTo(point[0], point[1]);				// start at last corner
 			for(int i = 0; i < numPoints; i++)
 			{
-				point = projectOnView(rotations[i], view);	// make lines to each corner
+				point = projectOnView(rotations.get(i), view);	// make lines to each corner
 				path.lineTo(point[0], point[1]);
 			}
 			g.drawPath(path, paint);						// draws polygon
@@ -129,10 +128,14 @@ public final class Graphics extends View
 	public class PointWithVector
 	{
 	    protected int[] location, previous, next;
-	    PanelWithVectors panelHandle;
-	    public PointWithVector(PanelWithVectors panelHandleSet, int index)
+	    /**
+	     * constructor for first made four points
+	     * @param panelHandle the whole panel for deletion and branching
+	     * @param index index of this point in panel
+	     * @param view view to draw panel into
+	     */
+	    public PointWithVector(PanelWithVectors panelHandle, int index, ViewRotations view)
 	    {
-	    	panelHandle = panelHandleSet;
 	    	location = panelHandle.panel[index];
 	    	if(index == 0)
 	    	{
@@ -148,14 +151,48 @@ public final class Graphics extends View
 	    	{
 	    		next = panelHandle.panel[index-1];
 	    	}
-	    }
-	    protected void fitOnScreen(ViewRotations view)
-		{
 			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location, view), view))
 			{
-				//TODO splitPoint
+				int [] p1 = getIntercept(location, previous);
+				int [] p2 = getIntercept(location, next);
+				if(p1 != null && p2 != null)				// if both ways are open
+				{
+					location = p1;
+					panelHandle.branchPoint(index, p2);
+				}
+				if(p1 == null && p2 == null)				// if neither vector goes into view
+				{
+					panelHandle.deletePoint(index);
+				}
+				if(p1 != null && p2 == null)				// if only first vector works
+				{
+					location = p1;
+				}
+				if(p1 == null && p2 != null)				// if only second vector works
+				{
+					location = p2;
+				}
 			}
-		}
+	    }
+	    /**
+	     * constructor for point made by branch
+	     * @param point location of new point
+	     */
+	    public PointWithVector(int [] point)
+	    {
+	    	location = point;
+	    }
+	    /**
+	     * get where line first comes into view, if it doesn't, return null
+	     * @param p1 the location of the point
+	     * @param p2 location of the next point
+	     * @return where line first hits players view, starting at location
+	     */
+	    public int[] getIntercept(int [] p1, int [] p2)
+	    {
+	    	//TODO
+	    	return p1;
+	    }
 	}
 	/*
 	 * object that stores 4 point with vectors pointing around the polygon
@@ -163,24 +200,30 @@ public final class Graphics extends View
 	public class PanelWithVectors
 	{
 		PointWithVector [] points = new PointWithVector[8];
-		protected int numVectors = 4;
 		protected int[][] panel;
 		protected Graphics graphics;
+		/**
+		 * makes points and lets them fix themselves to be on screen
+		 * @param panelSet the information for the panel to create and fix
+		 * @param view the view to fit panel into
+		 * @param graphicsSet the main file, for use of rotationSetOnScreen
+		 */
 		public PanelWithVectors(int[][] panelSet, ViewRotations view, Graphics graphicsSet)
 		{
 			graphics = graphicsSet;
 			panel = panelSet;
 			for(int i = 0; i < 4; i+=2)
 			{
-				points[i] = new PointWithVector(this, i);
-				points[i].fitOnScreen(view);
+				points[i] = new PointWithVector(this, i, view);
 			}
 		}
-		protected void splitPoint(int index, PointWithVector p1, PointWithVector p2)
+		protected void deletePoint(int index)
 		{
-			points[index] = p1;
-			points[index] = p2;
-			numVectors++;
+			points[index] = null;
+		}
+		protected void branchPoint(int index, int[] p1)
+		{
+			points[index+1] = new PointWithVector(p1);
 		}
 	}
 	/**
@@ -188,14 +231,17 @@ public final class Graphics extends View
 	 * @param rotations	the rotations to fix
 	 * @param view		the view to fit rotations into
 	 */
-	protected double[][] getRotationSet(int[][] panelSet, ViewRotations view)
+	protected ArrayList<double[]> getRotationSet(int[][] panelSet, ViewRotations view)
 	{
 		PanelWithVectors panel = new PanelWithVectors(panelSet.clone(), view, this);
-		
-		double [][] rotations = {	getRotationsToPoint(panel.points[0].location, view), 
-				getRotationsToPoint(panel.points[1].location, view), 
-				getRotationsToPoint(panel.points[2].location, view), 
-				getRotationsToPoint(panel.points[3].location, view)};
+		ArrayList<double[]> rotations = new ArrayList<double[]>();	// and returns rotations to points
+		for(int i = 0; i < 8; i++)
+		{
+			if(panel.points[i] != null)
+			{
+				rotations.add(getRotationsToPoint(panel.points[i].location, view));
+			}
+		}
 		return rotations;
 	}
 	/**
