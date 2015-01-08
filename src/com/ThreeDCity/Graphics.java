@@ -22,9 +22,14 @@ public final class Graphics extends View
 	 * Initializes all undecided variables, loads level, creates player and enemy objects, and starts frameCaller
 	 */
 	protected double zoom;
+	private double testing = 50;
+	private double viewSize = 1/200;
+	
+	private ViewRotations v;
 	double screenWidth, screenHeight;
 	private Controller control;
 	private Paint paint;
+	
 	public Graphics(Context contextSet, Controller controlSet, double [] dimensions)
 	{
 		super(contextSet);
@@ -43,18 +48,18 @@ public final class Graphics extends View
 	@Override
 	protected void onDraw(Canvas g)
 	{
-		ViewRotations view =  getView();
+		v =  getView();
 		paint.setColor(Color.WHITE);
 		g.drawRect(0, 0, (int)screenWidth, (int)screenHeight, paint);
 		paint.setColor(Color.GREEN);
-		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
+		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(v.pRotation[1])*v.distanceFromPanel*testing), (int)screenWidth, (int)screenHeight, paint);
 		paint.setColor(Color.GRAY);
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
 		ArrayList<Panel> panels = (ArrayList<Panel>)control.objects.panels.clone();
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
 		{
-			drawPanel(panels.get(orderToDraw[i]), view, g);
+			drawPanel(panels.get(orderToDraw[i]), g);
 		}
 	}
 	/**
@@ -99,21 +104,22 @@ public final class Graphics extends View
 	 * draws panel sent to function
 	 * @param panel the panel to draw
 	 */
-	protected void drawPanel(Panel rawPanel, ViewRotations view, Canvas g)
+	protected void drawPanel(Panel rawPanel, Canvas g)
 	{
 		int[][] panel = rawPanel.points.clone();				// fixes panel so it fits on screen
-		ArrayList<double[]> rotations = getRotationSet(panel, view);	// and returns rotations to points
+		ArrayList<double[]> rotations = getRotationSet(panel);	// and returns rotations to points
 		if(rotations.size() > 0)							// if panel was on screen
 		{
 			Path path = new Path();
 			int numPoints = rotations.size();
-			int[] point = projectOnView(rotations.get(numPoints-1), view);
+			int[] point = projectOnView(rotations.get(numPoints-1));
 			path.moveTo(point[0], point[1]);				// start at last corner
 			for(int i = 0; i < numPoints; i++)
 			{
-				point = projectOnView(rotations.get(i), view);	// make lines to each corner
+				point = projectOnView(rotations.get(i));	// make lines to each corner
 				path.lineTo(point[0], point[1]);
 			}
+			paint.setStyle(Style.STROKE);
 			paint.setColor(rawPanel.color);
 			g.drawPath(path, paint);						// draws polygon
 		}
@@ -146,7 +152,7 @@ public final class Graphics extends View
 	    		previous = panelHandle.panel[index-1];
 	    		next = panelHandle.panel[index+1];
 	    	}
-			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location, view), view))
+			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location)))
 			{
 				int [] p1 = getIntercept(location, previous, panelHandle);
 				int [] p2 = getIntercept(location, next, panelHandle);
@@ -186,16 +192,15 @@ public final class Graphics extends View
 	    public int[] getIntercept(int [] start, int [] end, PanelWithVectors panel)
 	    {
 	    	double [] location = panel.graphics.control.player.getLocation();
-	    	double [] rotations = panel.graphics.control.player.getRotation();
+	    	double [] rotations = panel.graphics.v.pRotation;
 	    	
-	    	double distanceFromPanel = 5; //make this some function of zoom. //TODO unify
-			double viewSize = 1/200;
+	    	double distanceFromPanel = zoom; //make this some function of zoom. //TODO unify
 			double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
 			double panelHeight = screenHeight*viewSize; // width and height are half full width/height
 			double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
 			double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
 	    	
-			double distanceSee = 1000;
+			double distanceSee = 100000;
 			
 			double rotRight = rotations[0]+rotToPanelSide;
 			double rotLeft = rotations[0]-rotToPanelSide;
@@ -326,15 +331,15 @@ public final class Graphics extends View
 	 * @param rotations	the rotations to fix
 	 * @param view		the view to fit rotations into
 	 */
-	protected ArrayList<double[]> getRotationSet(int[][] panelSet, ViewRotations view)
+	protected ArrayList<double[]> getRotationSet(int[][] panelSet)
 	{
-		PanelWithVectors panel = new PanelWithVectors(panelSet.clone(), view, this);
+		PanelWithVectors panel = new PanelWithVectors(panelSet.clone(), v, this);
 		ArrayList<double[]> rotations = new ArrayList<double[]>();	// and returns rotations to points
 		for(int i = 0; i < 8; i++)
 		{
 			if(panel.points[i] != null)
 			{
-				rotations.add(getRotationsToPoint(panel.points[i].location, view));
+				rotations.add(getRotationsToPoint(panel.points[i].location));
 			}
 		}
 		return rotations;
@@ -345,23 +350,23 @@ public final class Graphics extends View
 	 * @param view			the view to check if it fits in
 	 * @return				whether it fits in players view
 	 */
-	protected boolean rotationSetOnScreen(double[] rotationSet, ViewRotations view)
+	protected boolean rotationSetOnScreen(double[] rotationSet)
 	{
 		double hRot = rotationSet[0];
 		double vRot = rotationSet[1];
-		if(view.leftRot>view.rightRot)		// view is split across the 180/-180 thing
+		if(v.leftRot>v.rightRot)		// view is split across the 180/-180 thing
 		{
-			if(hRot>view.rightRot||hRot<view.leftRot) return false;
+			if(hRot>v.rightRot||hRot<v.leftRot) return false;
 		} else
 		{
-			if(!(hRot<view.rightRot||hRot>view.leftRot)) return false;
+			if(!(hRot<v.rightRot||hRot>v.leftRot)) return false;
 		}
-		if(view.bottomRot>view.topRot)		// view is split across the 180/-180 thing
+		if(v.bottomRot>v.topRot)		// view is split across the 180/-180 thing
 		{
-			if(vRot>view.topRot||vRot<view.bottomRot) return false;
+			if(vRot>v.topRot||vRot<v.bottomRot) return false;
 		} else
 		{
-			if(!(vRot<view.topRot||vRot>view.bottomRot)) return false;
+			if(!(vRot<v.topRot||vRot>v.bottomRot)) return false;
 		}
 		return true;
 	}
@@ -371,7 +376,7 @@ public final class Graphics extends View
 	 * @param view			view being projected onto
 	 * @return				rotations to point
 	 */
-	protected double[] getRotationsToPoint(int [] coordinates, ViewRotations view)
+	protected double[] getRotationsToPoint(int [] coordinates)
 	{
 		double [] pCoordinates = control.player.getLocation();
 		double [] rotations = new double[2];
@@ -391,11 +396,12 @@ public final class Graphics extends View
 	 * @param viewPanel	view panel to project onto
 	 * @return			x and y position of point on screen
 	 */
-	protected int [] projectOnView(double [] rotations, ViewRotations view)
+	protected int [] projectOnView(double [] rotations)
 	{
 		int [] position = new int[2];
-		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel*200); //TODO
-		position[1] = -(int)(Math.tan(rotations[1])*view.distanceFromPanel*200);
+		double [] pRotations = v.pRotation;
+		position[0] = (int)(Math.tan(rotations[0]-pRotations[0])*v.distanceFromPanel*testing); //TODO
+		position[1] = -(int)(Math.tan(rotations[1]-pRotations[1])*v.distanceFromPanel*testing);
 		return position;
 	}
 	/*
@@ -404,6 +410,7 @@ public final class Graphics extends View
 	public class ViewRotations {
 	    protected double topRot, bottomRot, leftRot, rightRot;
 	    protected double distanceFromPanel;
+	    protected double [] pRotation;
 	}
 	/**
 	 * returns the rotations to each end of the screen
@@ -411,14 +418,14 @@ public final class Graphics extends View
 	 */
 	protected ViewRotations getView()
 	{
-		double distanceFromPanel = 5; //make this some function of zoom.
-		double viewSize = 1/200;
+		double distanceFromPanel = zoom; //make this some function of zoom.
 		double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
 		double panelHeight = screenHeight*viewSize; // width and height are half full width/height
 		double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
 		double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
 		double[] rotations = control.player.getRotation();
 		ViewRotations view = new ViewRotations();
+		view.pRotation = rotations;
 		view.topRot = rotations[1]+rotToPanelTop;
 		view.bottomRot = rotations[1]-rotToPanelTop;
 		view.rightRot = rotations[0]+rotToPanelSide;

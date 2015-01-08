@@ -35,6 +35,7 @@ public final class Controller
 		player = new Player(this);
 		objects = new Objects(this);
 		graphics = new Graphics(contextSet, this, dimensions);
+		graphics.setOnTouchListener(player);
 		frameCaller.run();
 	}
 	private void frameCall()
