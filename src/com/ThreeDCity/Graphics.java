@@ -33,19 +33,19 @@ public final class Graphics extends View
 		invalidate();
 	}
 	/**
-	 * 
+	 * draws every object as wel as the ground in the distance
 	 */
 	@Override
 	protected void onDraw(Canvas g)
 	{
 		ViewRotations view =  getView();
+		g.drawRect(0, (int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
 		ArrayList<int[][]> panels = control.objects.panels;
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
 		{
 			drawPanel(panels.get(orderToDraw[i]), view, g);
 		}
-		g.drawRect(0, (int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
 	}
 	/**
 	 * layers panels to be drawn on top of each other
@@ -54,16 +54,34 @@ public final class Graphics extends View
 	protected int[] orderPanels(ArrayList<int[][]> panels)
 	{
 		int [] orderToDraw = new int[panels.size()];
+		int [] distances = new int[panels.size()];
 		double [] playerPos = control.player.getLocation();
 		for(int i = 0; i < panels.size(); i++)
 		{
-			int[] center = panels.get(i)[4];
-			double distance = Math.sqrt(Math.pow(center[0]-playerPos[0], 2)+	// X-Direction
-										Math.pow(center[1]-playerPos[1], 2)+	// Y-Direction
-										Math.pow(center[2]-playerPos[2], 2));	// Z-Direction
-			orderToDraw[i] = i;
+			distances[i] = (int) Math.sqrt(	Math.pow(panels.get(i)[4][0]-playerPos[0], 2)+	// X-Direction
+											Math.pow(panels.get(i)[4][1]-playerPos[1], 2)+	// Y-Direction
+											Math.pow(panels.get(i)[4][2]-playerPos[2], 2));	// Z-Direction
 		}
-		//TODO
+		for(int i = 0; i < panels.size(); i++)	// first elements should be farthest, so drawn overtop
+		{
+			int index = 0;
+			int dist = 0;
+			for(int j = 0; j < panels.size(); j++)	// check every elements left
+			{
+				for(int k = 0; k < i; k++)
+				{
+					if(orderToDraw[k]==j) j++;			// if this index is in sorted list skip it
+				}
+				if(j < panels.size())					// make sure we didn't just skip the last index
+				{
+					if(distances[j]>distances[index])		// if this object farther away
+					{
+						index = j;
+					}
+				}
+			}
+			orderToDraw[i]=index;
+		}
 		return orderToDraw;
 	}
 	/**
@@ -102,6 +120,16 @@ public final class Graphics extends View
 								getRotationsToPoint(panel[3], view)};
 		fixPanelRotationSet(rotations, view);
 		return rotations;
+	}
+	/*
+	 * 
+	 */
+	public class ViewRotations {
+	    protected double topRot;
+	    protected double bottomRot;
+	    protected double leftRot;
+	    protected double rightRot;
+	    protected double distanceFromPanel;
 	}
 	/**
 	 * fixes rotations of a panel to draw on screen, if panel not visible returns null
@@ -187,6 +215,9 @@ public final class Graphics extends View
 		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel);
 		return position;
 	}
+	/*
+	 * object that stores rotations and distance of view
+	 */
 	public class ViewRotations {
 	    protected double topRot;
 	    protected double bottomRot;
