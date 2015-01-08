@@ -107,56 +107,80 @@ public final class Graphics extends View
 			g.drawPath(path, paint);						// draws polygon
 		}
 	}
-	/**
-	 * fixes panel so it can be drawn in bounds
-	 * @param oldPanel	panel sent to function
-	 * @return			panel that can be drawn right
-	 */
-	protected double[][] getRotationSet(int[][] panel, ViewRotations view)
-	{
-		double [][] rotations = {	getRotationsToPoint(panel[0], view), 
-								getRotationsToPoint(panel[1], view), 
-								getRotationsToPoint(panel[2], view), 
-								getRotationsToPoint(panel[3], view)};
-		fixPanelRotationSet(rotations, view);
-		return rotations;
-	}
 	/*
-	 * 
+	 * object containing all data about a panel neccesary to fix points onto screen
 	 */
-	public class ViewRotations {
+	public class PanelWithDirection
+	{
 	    protected double topRot;
 	    protected double bottomRot;
 	    protected double leftRot;
 	    protected double rightRot;
 	    protected double distanceFromPanel;
+	    /**
+	     * constructor takes panel points and labels each point with direction vectors
+	     * this lets you find out where a single point sticks when forced on screen
+	     */
+	    public PanelWithDirection(double[][] rotations)
+	    {
+	    	
+	    }
+	}
+	/*
+	 * object that stores a point with vectors pointing to the two closest points on rect
+	 */
+	public class PointWithVector {
+	    protected int[] location, previous, next;
+	    public PointWithVector(int[] locationVector, int[] previousVector, int[] nextVector)
+	    {
+	    	location = locationVector;
+	    	previous = previousVector;
+	    	next = nextVector;
+	    }
+	}
+	/*
+	 * object that stores 4 point with vectors pointing around the polygon
+	 */
+	public class PanelWithVectors {
+		PointWithVector [] points = new PointWithVector[4];
+		public PanelWithVectors(int[][] panelSet)
+		{
+			int numVectors = 4;
+			for(int i = 0; i < numVectors; i ++)
+			{									//itself, vector previous, vector after
+				switch(i)
+				{
+				case 0:
+					points[i] = new PointWithVector(panelSet[i], panelSet[3], panelSet[i+1]);
+				case 3:
+					points[i] = new PointWithVector(panelSet[i], panelSet[i-1], panelSet[0]);
+				default:
+					points[i] = new PointWithVector(panelSet[i], panelSet[i-1], panelSet[i+1]);	
+				}
+			}
+		}
 	}
 	/**
 	 * fixes rotations of a panel to draw on screen, if panel not visible returns null
 	 * @param rotations	the rotations to fix
 	 * @param view		the view to fit rotations into
 	 */
-	protected void fixPanelRotationSet(double[][] rotations, ViewRotations view)
+	protected double[][] getRotationSet(int[][] panelSet, ViewRotations view)
 	{
-		boolean anythingOnScreen = false;
-		boolean [] onScreen = new boolean[4];
-		Arrays.fill(onScreen, false);
-		for(int i = 0; i < 4; i++)
-		{
-			if(rotationSetOnScreen(rotations[i], view))
-			{
-				anythingOnScreen = true;
-				onScreen[i] = true;
-			}
-		}
-		if(!anythingOnScreen)
-		{
-			rotations = null;
-			return;
-		}
-				// IF AT LEAST PART OF SQUARE ON SCREEN
-		//TODO
-		//if()
+		int [][] panel = panelSet.clone();
+		
+		
+		
+		
+		
+		
+		
+		
+		double [][] rotations = {	getRotationsToPoint(panel[0], view), 
+				getRotationsToPoint(panel[1], view), 
+				getRotationsToPoint(panel[2], view), 
+				getRotationsToPoint(panel[3], view)};
+		return rotations;
 	}
 	/**
 	 * returns whether the rotation set is in players view
@@ -219,10 +243,7 @@ public final class Graphics extends View
 	 * object that stores rotations and distance of view
 	 */
 	public class ViewRotations {
-	    protected double topRot;
-	    protected double bottomRot;
-	    protected double leftRot;
-	    protected double rightRot;
+	    protected double topRot, bottomRot, leftRot, rightRot;
 	    protected double distanceFromPanel;
 	}
 	/**
