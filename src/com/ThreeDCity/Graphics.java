@@ -1,8 +1,6 @@
 package com.ThreeDCity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -65,7 +63,6 @@ public final class Graphics extends View
 		for(int i = 0; i < panels.size(); i++)	// first elements should be farthest, so drawn overtop
 		{
 			int index = 0;
-			int dist = 0;
 			for(int j = 0; j < panels.size(); j++)	// check every elements left
 			{
 				for(int k = 0; k < i; k++)
@@ -129,35 +126,61 @@ public final class Graphics extends View
 	/*
 	 * object that stores a point with vectors pointing to the two closest points on rect
 	 */
-	public class PointWithVector {
+	public class PointWithVector
+	{
 	    protected int[] location, previous, next;
-	    public PointWithVector(int[] locationVector, int[] previousVector, int[] nextVector)
+	    PanelWithVectors panelHandle;
+	    public PointWithVector(PanelWithVectors panelHandleSet, int index)
 	    {
-	    	location = locationVector;
-	    	previous = previousVector;
-	    	next = nextVector;
+	    	panelHandle = panelHandleSet;
+	    	location = panelHandle.panel[index];
+	    	if(index == 0)
+	    	{
+	    		previous = panelHandle.panel[3];
+	    	} else
+	    	{
+	    		previous = panelHandle.panel[index-1];
+	    	}
+	    	if(index == 3)
+	    	{
+	    		next = panelHandle.panel[0];
+	    	} else
+	    	{
+	    		next = panelHandle.panel[index-1];
+	    	}
 	    }
+	    protected void fitOnScreen(ViewRotations view)
+		{
+			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location, view), view))
+			{
+				//TODO splitPoint
+			}
+		}
 	}
 	/*
 	 * object that stores 4 point with vectors pointing around the polygon
 	 */
-	public class PanelWithVectors {
-		PointWithVector [] points = new PointWithVector[4];
-		public PanelWithVectors(int[][] panelSet)
+	public class PanelWithVectors
+	{
+		PointWithVector [] points = new PointWithVector[8];
+		protected int numVectors = 4;
+		protected int[][] panel;
+		protected Graphics graphics;
+		public PanelWithVectors(int[][] panelSet, ViewRotations view, Graphics graphicsSet)
 		{
-			int numVectors = 4;
-			for(int i = 0; i < numVectors; i ++)
-			{									//itself, vector previous, vector after
-				switch(i)
-				{
-				case 0:
-					points[i] = new PointWithVector(panelSet[i], panelSet[3], panelSet[i+1]);
-				case 3:
-					points[i] = new PointWithVector(panelSet[i], panelSet[i-1], panelSet[0]);
-				default:
-					points[i] = new PointWithVector(panelSet[i], panelSet[i-1], panelSet[i+1]);	
-				}
+			graphics = graphicsSet;
+			panel = panelSet;
+			for(int i = 0; i < 4; i+=2)
+			{
+				points[i] = new PointWithVector(this, i);
+				points[i].fitOnScreen(view);
 			}
+		}
+		protected void splitPoint(int index, PointWithVector p1, PointWithVector p2)
+		{
+			points[index] = p1;
+			points[index] = p2;
+			numVectors++;
 		}
 	}
 	/**
@@ -167,19 +190,12 @@ public final class Graphics extends View
 	 */
 	protected double[][] getRotationSet(int[][] panelSet, ViewRotations view)
 	{
-		int [][] panel = panelSet.clone();
+		PanelWithVectors panel = new PanelWithVectors(panelSet.clone(), view, this);
 		
-		
-		
-		
-		
-		
-		
-		
-		double [][] rotations = {	getRotationsToPoint(panel[0], view), 
-				getRotationsToPoint(panel[1], view), 
-				getRotationsToPoint(panel[2], view), 
-				getRotationsToPoint(panel[3], view)};
+		double [][] rotations = {	getRotationsToPoint(panel.points[0].location, view), 
+				getRotationsToPoint(panel.points[1].location, view), 
+				getRotationsToPoint(panel.points[2].location, view), 
+				getRotationsToPoint(panel.points[3].location, view)};
 		return rotations;
 	}
 	/**
