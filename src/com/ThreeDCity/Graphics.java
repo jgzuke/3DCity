@@ -200,7 +200,7 @@ public final class Graphics extends View
 			double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
 			double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
 	    	
-			double distanceSee = 100;
+			double distanceSee = 1000;
 			
 			double rotRight = rotations[0]+rotToPanelSide;
 			double rotLeft = rotations[0]-rotToPanelSide;
@@ -232,30 +232,39 @@ public final class Graphics extends View
 			
 	    	//Now we have a bunch of lines between points
 	    	//we need to check if they hit within their domains
-	    	double [] hitRight2D = pointCollision(playerXY, playerRight, startXY, endXY);
-	    	double [] hitLeft2D = pointCollision(playerXY, playerLeft, startXY, endXY);
-	    	double [] hitTop2D = pointCollision(playerDZ, playerTop, startDZ, endDZ);
-	    	double [] hitBot2D = pointCollision(playerDZ, playerBot, startDZ, endDZ);
+	    	double hitRight2D = pointCollision(playerXY, playerRight, startXY, endXY);
+	    	double hitLeft2D = pointCollision(playerXY, playerLeft, startXY, endXY);
+	    	double hitTop2D = pointCollision(playerDZ, playerTop, startDZ, endDZ);
+	    	double hitBot2D = pointCollision(playerDZ, playerBot, startDZ, endDZ);
+			double distanceFromStart = getLowest(hitRight2D, hitLeft2D, hitTop2D, hitBot2D);
 			
+	    	if(distanceFromStart == 2) return null; // all intercepts returned 2 so nothing hit
 	    	
-	    	
-	    	int [] hitRight = new int[3];
-	    	int [] hitLeft = new int[3];
-	    	int [] hitTop = new int[3];
-	    	int [] hitBottom = new int[3];
-	    	//TODO
-	    	
-	    	return start;
+	    	// distance from start is a decimal so do a weighted averge of start and finish
+	    	double sW = 1-distanceFromStart;	//weighting of start and end
+	    	double eW = distanceFromStart;
+	    	int [] hit = {	(int)((sW*start[0])+(eW*end[0])),
+	    					(int)((sW*start[1])+(eW*end[1])),
+	    					(int)((sW*start[2])+(eW*end[2]))};
+	    	return hit;
+	    }
+	    private double getLowest(double a, double b, double c, double d)
+	    {
+	    	if(a<b && a<c && a<d) return a;
+	    	if(b<c && b<d) return b;
+	    	if(c<d) return c;
+	    	return d;
 	    }
 	    /**
-	     * checks and returns where two lines intercept, return null if they don't
+	     * checks and returns where two lines intercept, as a function
+	     * of distance from starting point, from 0-1, return 2 if they don't
 	     * @param start1	start of first line
 	     * @param end1		end of first line
 	     * @param start2	start of second line
 	     * @param end2		end of second line
 	     * @return			where lines collide, null if they don't
 	     */
-	    protected double [] pointCollision(double [] start1, double [] end1, double [] start2, double [] end2)
+	    protected double pointCollision(double [] start1, double [] end1, double [] start2, double [] end2)
 	    {
 	    	double M1 = (end1[1]-start1[1])/(end1[0]-start1[0]); // convert to y=mx+b form
 	    	double M2 = (end2[1]-start2[1])/(end2[0]-start2[0]); // convert to y=mx+b form
@@ -268,19 +277,21 @@ public final class Graphics extends View
 	    	//	We have our intercept now is it within our lines
 	    	if(start1[0]>end1[0])		// check first line
 	    	{
-	    		if(x<end1[0] || x>start1[0]) return null;	// is it outside? return false
+	    		if(x<end1[0] || x>start1[0]) return 2;	// is it outside? return false
 	    	} else
 	    	{
-	    		if(x>end1[0] || x<start1[0]) return null;
+	    		if(x>end1[0] || x<start1[0]) return 2;
 	    	}
 	    	if(start2[0]>end2[0])
 	    	{
-	    		if(x<end2[0] || x>start2[0]) return null;
+	    		if(x<end2[0] || x>start2[0]) return 2;
 	    	} else
 	    	{
-	    		if(x>end2[0] || x<start2[0]) return null;
-	    	}	
-	    	return collision;
+	    		if(x>end2[0] || x<start2[0]) return 2;
+	    	}
+	    	// the distance as a decimal can be found by (colx-startx)/(endx-startx)
+	    	
+	    	return (collision[0]-start2[0])/(end2[0]-start2[0]);
 	    }
 	}
 	/*
