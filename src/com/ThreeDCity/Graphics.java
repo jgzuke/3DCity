@@ -1,10 +1,14 @@
 package com.ThreeDCity;
 
 import java.util.ArrayList;
+
+import com.ThreeDCity.Objects.Panel;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +50,7 @@ public final class Graphics extends View
 		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
 		paint.setColor(Color.GRAY);
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
-		ArrayList<int[][]> panels = (ArrayList<int[][]>)control.objects.panels.clone();
+		ArrayList<Panel> panels = (ArrayList<Panel>)control.objects.panels.clone();
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
 		{
@@ -57,20 +61,21 @@ public final class Graphics extends View
 	 * layers panels to be drawn on top of each other
 	 * @return which index will be drawn first, second etc.
 	 */
-	protected int[] orderPanels(ArrayList<int[][]> panels)
+	protected int[] orderPanels(ArrayList<Panel> panels)
 	{
 		int [] orderToDraw = new int[panels.size()];
 		int [] distances = new int[panels.size()];
 		double [] playerPos = control.player.getLocation();
 		for(int i = 0; i < panels.size(); i++)
 		{
-			distances[i] = (int) Math.sqrt(	Math.pow(panels.get(i)[4][0]-playerPos[0], 2)+	// X-Direction
-											Math.pow(panels.get(i)[4][1]-playerPos[1], 2)+	// Y-Direction
-											Math.pow(panels.get(i)[4][2]-playerPos[2], 2));	// Z-Direction
+			distances[i] = (int) Math.sqrt(	Math.pow(panels.get(i).points[4][0]-playerPos[0], 2)+	// X-Direction
+											Math.pow(panels.get(i).points[4][1]-playerPos[1], 2)+	// Y-Direction
+											Math.pow(panels.get(i).points[4][2]-playerPos[2], 2));	// Z-Direction
 		}
 		for(int i = 0; i < panels.size(); i++)	// first elements should be farthest, so drawn overtop
 		{
 			int index = 0;
+			int dist = 0;
 			for(int j = 0; j < panels.size(); j++)	// check every elements left
 			{
 				for(int k = 0; k < i; k++)
@@ -79,9 +84,10 @@ public final class Graphics extends View
 				}
 				if(j < panels.size())					// make sure we didn't just skip the last index
 				{
-					if(distances[j]>distances[index])		// if this object farther away
+					if(distances[j]>dist)		// if this object farther away
 					{
 						index = j;
+						dist = distances[j];
 					}
 				}
 			}
@@ -93,14 +99,12 @@ public final class Graphics extends View
 	 * draws panel sent to function
 	 * @param panel the panel to draw
 	 */
-	protected void drawPanel(int[][] rawPanel, ViewRotations view, Canvas g)
+	protected void drawPanel(Panel rawPanel, ViewRotations view, Canvas g)
 	{
-		int[][] panel = rawPanel.clone();				// fixes panel so it fits on screen
+		int[][] panel = rawPanel.points.clone();				// fixes panel so it fits on screen
 		ArrayList<double[]> rotations = getRotationSet(panel, view);	// and returns rotations to points
 		if(rotations.size() > 0)							// if panel was on screen
 		{
-			Log.e("mine", Integer.toString(rotations.size()));
-			
 			Path path = new Path();
 			int numPoints = rotations.size();
 			int[] point = projectOnView(rotations.get(numPoints-1), view);
@@ -110,6 +114,7 @@ public final class Graphics extends View
 				point = projectOnView(rotations.get(i), view);	// make lines to each corner
 				path.lineTo(point[0], point[1]);
 			}
+			paint.setColor(rawPanel.color);
 			g.drawPath(path, paint);						// draws polygon
 		}
 	}
