@@ -204,20 +204,22 @@ public final class Graphics extends View
 			
 			double rotRight = rotations[0]+rotToPanelSide;
 			double rotLeft = rotations[0]-rotToPanelSide;
-	    	double [] right = {distanceSee*Math.cos(rotRight), distanceSee*Math.sin(rotRight)};	// x and y
-	    	double [] left = {distanceSee*Math.cos(rotLeft), distanceSee*Math.sin(rotLeft)};	// x and y
+	    	double [] playerRight = {distanceSee*Math.cos(rotRight), distanceSee*Math.sin(rotRight)};	// x and y
+	    	double [] playerLeft = {distanceSee*Math.cos(rotLeft), distanceSee*Math.sin(rotLeft)};	// x and y
 	    	
 	    	double [] startXY = {start[0]-location[0], start[1]-location[1]};
 	    	double [] endXY = {end[0]-location[0], end[1]-location[1]};
 			
 			double rotTop = rotations[1]+rotToPanelTop;
 			double rotBot = rotations[1]-rotToPanelTop;
-	    	double [] top = {distanceSee*Math.cos(rotTop), distanceSee*Math.sin(rotTop)};	// d and z
-	    	double [] bot = {distanceSee*Math.cos(rotBot), distanceSee*Math.sin(rotBot)};// d and z
+	    	double [] playerTop = {distanceSee*Math.cos(rotTop), distanceSee*Math.sin(rotTop)};	// d and z
+	    	double [] playerBot = {distanceSee*Math.cos(rotBot), distanceSee*Math.sin(rotBot)};// d and z
 	    	
 	    	double [] startDZ = {Math.sqrt(Math.pow(startXY[0], 2)+Math.pow(startXY[1], 2)), start[2]-location[2]};
 	    	double [] endDZ = {Math.sqrt(Math.pow(endXY[0], 2)+Math.pow(endXY[1], 2)), end[2]-location[2]};
 	    	
+	    	double [] playerXY = {0, 0};
+	    	double [] playerDZ = {0, 0};
 	    	//player is at 0, 0 for both x: y, and d: z
 	    	//rotRight: vector 100m away on right hand side of players sight
 	    	//rotLeft: vector 100m away on left hand side of players sight
@@ -230,10 +232,10 @@ public final class Graphics extends View
 			
 	    	//Now we have a bunch of lines between points
 	    	//we need to check if they hit within their domains
-	    	int [] 
-			
-			
-			
+	    	double [] hitRight2D = pointCollision(playerXY, playerRight, startXY, endXY);
+	    	double [] hitLeft2D = pointCollision(playerXY, playerLeft, startXY, endXY);
+	    	double [] hitTop2D = pointCollision(playerDZ, playerTop, startDZ, endDZ);
+	    	double [] hitBot2D = pointCollision(playerDZ, playerBot, startDZ, endDZ);
 			
 	    	
 	    	
@@ -253,10 +255,32 @@ public final class Graphics extends View
 	     * @param end2		end of second line
 	     * @return			where lines collide, null if they don't
 	     */
-	    protected int [] pointCollision(int [] start1, int [] end1, int [] start2, int [] end2)
+	    protected double [] pointCollision(double [] start1, double [] end1, double [] start2, double [] end2)
 	    {
-	    	
-	    	return start1;
+	    	double M1 = (end1[1]-start1[1])/(end1[0]-start1[0]); // convert to y=mx+b form
+	    	double M2 = (end2[1]-start2[1])/(end2[0]-start2[0]); // convert to y=mx+b form
+	    		//	m1(x-x1)+y1 = m2(x-x2)+y2           x1:start1[0], y1:start1[1]
+	    		//	x = (y2 - y1 + m1x1 - m2x2)/(m1 - m2)
+	    	double x = (start2[1]-start1[1] + (M1*start1[0]) - (M2*start2[0]))/(M1 - M2);
+	    		//	y = m1*(x-x1)+y1
+	    	double y = M1*(x - start1[0]) + start1[1];
+	    	double [] collision = {x, y};
+	    	//	We have our intercept now is it within our lines
+	    	if(start1[0]>end1[0])		// check first line
+	    	{
+	    		if(x<end1[0] || x>start1[0]) return null;	// is it outside? return false
+	    	} else
+	    	{
+	    		if(x>end1[0] || x<start1[0]) return null;
+	    	}
+	    	if(start2[0]>end2[0])
+	    	{
+	    		if(x<end2[0] || x>start2[0]) return null;
+	    	} else
+	    	{
+	    		if(x>end2[0] || x<start2[0]) return null;
+	    	}	
+	    	return collision;
 	    }
 	}
 	/*
