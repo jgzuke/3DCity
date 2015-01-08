@@ -153,8 +153,8 @@ public final class Graphics extends View
 	    	}
 			if(!panelHandle.graphics.rotationSetOnScreen(getRotationsToPoint(location, view), view))
 			{
-				int [] p1 = getIntercept(location, previous);
-				int [] p2 = getIntercept(location, next);
+				int [] p1 = getIntercept(location, previous, panelHandle);
+				int [] p2 = getIntercept(location, next, panelHandle);
 				if(p1 != null && p2 != null)				// if both ways are open
 				{
 					location = p1;
@@ -188,10 +188,75 @@ public final class Graphics extends View
 	     * @param p2 location of the next point
 	     * @return where line first hits players view, starting at location
 	     */
-	    public int[] getIntercept(int [] p1, int [] p2)
+	    public int[] getIntercept(int [] start, int [] end, PanelWithVectors panel)
 	    {
+	    	double [] location = panel.graphics.control.player.getLocation();
+	    	double [] rotations = panel.graphics.control.player.getRotation();
+	    	
+	    	double distanceFromPanel = 5; //make this some function of zoom. //TODO unify
+			double viewSize = 1/200;
+			double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
+			double panelHeight = screenHeight*viewSize; // width and height are half full width/height
+			double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
+			double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
+	    	
+			double distanceSee = 100;
+			
+			double rotRight = rotations[0]+rotToPanelSide;
+			double rotLeft = rotations[0]-rotToPanelSide;
+	    	double [] right = {distanceSee*Math.cos(rotRight), distanceSee*Math.sin(rotRight)};	// x and y
+	    	double [] left = {distanceSee*Math.cos(rotLeft), distanceSee*Math.sin(rotLeft)};	// x and y
+	    	
+	    	double [] startXY = {start[0]-location[0], start[1]-location[1]};
+	    	double [] endXY = {end[0]-location[0], end[1]-location[1]};
+			
+			double rotTop = rotations[1]+rotToPanelTop;
+			double rotBot = rotations[1]-rotToPanelTop;
+	    	double [] top = {distanceSee*Math.cos(rotTop), distanceSee*Math.sin(rotTop)};	// d and z
+	    	double [] bot = {distanceSee*Math.cos(rotBot), distanceSee*Math.sin(rotBot)};// d and z
+	    	
+	    	double [] startDZ = {Math.sqrt(Math.pow(startXY[0], 2)+Math.pow(startXY[1], 2)), start[2]-location[2]};
+	    	double [] endDZ = {Math.sqrt(Math.pow(endXY[0], 2)+Math.pow(endXY[1], 2)), end[2]-location[2]};
+	    	
+	    	//player is at 0, 0 for both x: y, and d: z
+	    	//rotRight: vector 100m away on right hand side of players sight
+	    	//rotLeft: vector 100m away on left hand side of players sight
+	    	//rotTop: vector 100m away on top of players sight
+	    	//rotBot: vector 100m away on bottom of players sight
+	    	//startXY: x, y of start
+	    	//endXY: x, y of end
+	    	//startDZ: d, z of start		(D: distance from player, Z: height difference)
+	    	//endDZ: d, z of end
+			
+	    	//Now we have a bunch of lines between points
+	    	//we need to check if they hit within their domains
+	    	int [] 
+			
+			
+			
+			
+	    	
+	    	
+	    	int [] hitRight = new int[3];
+	    	int [] hitLeft = new int[3];
+	    	int [] hitTop = new int[3];
+	    	int [] hitBottom = new int[3];
 	    	//TODO
-	    	return p1;
+	    	
+	    	return start;
+	    }
+	    /**
+	     * checks and returns where two lines intercept, return null if they don't
+	     * @param start1	start of first line
+	     * @param end1		end of first line
+	     * @param start2	start of second line
+	     * @param end2		end of second line
+	     * @return			where lines collide, null if they don't
+	     */
+	    protected int [] pointCollision(int [] start1, int [] end1, int [] start2, int [] end2)
+	    {
+	    	
+	    	return start1;
 	    }
 	}
 	/*
