@@ -3,6 +3,7 @@ package com.ThreeDCity;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 
 /*
  * Control runs frames, controls graphics redraw, etc
@@ -31,9 +32,10 @@ public final class Controller
 	{
 		context = contextSet;
 		activity = activitySet;
-		graphics = new Graphics(contextSet, this, dimensions);
 		player = new Player(this);
 		objects = new Objects(this);
+		graphics = new Graphics(contextSet, this, dimensions);
+		frameCaller.run();
 	}
 	private void frameCall()
 	{

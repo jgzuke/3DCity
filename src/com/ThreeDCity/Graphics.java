@@ -3,8 +3,10 @@ package com.ThreeDCity;
 import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.Log;
 import android.view.View;
 
 /*
@@ -38,8 +40,13 @@ public final class Graphics extends View
 	protected void onDraw(Canvas g)
 	{
 		ViewRotations view =  getView();
-		g.drawRect(0, (int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
-		ArrayList<int[][]> panels = control.objects.panels;
+		paint.setColor(Color.WHITE);
+		g.drawRect(0, 0, (int)screenWidth, (int)screenHeight, paint);
+		paint.setColor(Color.GREEN);
+		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(control.player.zRotation)*view.distanceFromPanel), (int)screenWidth, (int)screenHeight, paint);
+		paint.setColor(Color.GRAY);
+		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
+		ArrayList<int[][]> panels = (ArrayList<int[][]>)control.objects.panels.clone();
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
 		{
@@ -92,6 +99,8 @@ public final class Graphics extends View
 		ArrayList<double[]> rotations = getRotationSet(panel, view);	// and returns rotations to points
 		if(rotations.size() > 0)							// if panel was on screen
 		{
+			Log.e("mine", Integer.toString(rotations.size()));
+			
 			Path path = new Path();
 			int numPoints = rotations.size();
 			int[] point = projectOnView(rotations.get(numPoints-1), view);
@@ -380,8 +389,8 @@ public final class Graphics extends View
 	protected int [] projectOnView(double [] rotations, ViewRotations view)
 	{
 		int [] position = new int[2];
-		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel);
-		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel);
+		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel*200); //TODO
+		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel*200);
 		return position;
 	}
 	/*

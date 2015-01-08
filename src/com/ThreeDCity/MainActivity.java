@@ -1,6 +1,7 @@
 package com.ThreeDCity;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ public class MainActivity extends Activity
     }
     private double[] getScreenDimensions()
     {
+    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		double[] dims = {getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels};
 		return dims;
     }
