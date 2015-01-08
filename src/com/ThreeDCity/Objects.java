@@ -23,7 +23,8 @@ public final class Objects
 	}
 	private void makeBackGround()
 	{
-		makePanel(400, -200, 400, 400, 200, 400, 400, -200, 100, 400, 200, 100);
+		makePanel(400, -200, 400, 400, 200, 400, 400, 200, 100, 400, -200, 100);
+		makePanel(400, -200, 400, 800, -200, 400, 800, -200, 100, 400, -200, 100);
 	}
 	private void makePanel(int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3, int z3, int x4, int y4, int z4)
 	{

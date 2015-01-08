@@ -390,7 +390,7 @@ public final class Graphics extends View
 	{
 		int [] position = new int[2];
 		position[0] = (int)(Math.tan(rotations[0])*view.distanceFromPanel*200); //TODO
-		position[1] = (int)(Math.tan(rotations[1])*view.distanceFromPanel*200);
+		position[1] = -(int)(Math.tan(rotations[1])*view.distanceFromPanel*200);
 		return position;
 	}
 	/*
