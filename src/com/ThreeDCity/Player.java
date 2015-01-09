@@ -11,7 +11,7 @@ import android.view.View.OnTouchListener;
 public final class Player implements OnTouchListener
 {
 	protected int height = 190; //cm
-	protected int x = 0;
+	protected int x = -200;
 	protected int y = 0;
 	protected int z = 190; //height of eyes
 	protected double hRotation = 0; //looking directly along x axis , -ve is left
@@ -77,7 +77,7 @@ public final class Player implements OnTouchListener
             if(looking != -1)
             {
             	hRotation -= (e.getX(e.findPointerIndex(looking))-lastLookX)/1000;
-            	zRotation += (e.getY(e.findPointerIndex(looking))-lastLookY)/1000;
+            	zRotation -= (e.getY(e.findPointerIndex(looking))-lastLookY)/1000;
             	lastLookX = e.getX(e.findPointerIndex(looking));
         		lastLookY = e.getY(e.findPointerIndex(looking));
             }
