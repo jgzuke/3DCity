@@ -52,7 +52,7 @@ public final class Objects
 	}
 	private void makeBackGround()
 	{
-		makePoint(500, -140, 0);
+		/*makePoint(500, -140, 0);
 		makePoint(500, -120, 0);
 		makePoint(500, -100, 0);
 		makePoint(500, -80, 0);
@@ -66,8 +66,8 @@ public final class Objects
 		makePoint(500, 80, 0);
 		makePoint(500, 100, 0);
 		makePoint(500, 120, 0);
-		makePoint(500, 140, 0);
-		/*makeCube(500, 0, 50, 50);
+		makePoint(500, 140, 0);*/
+		makeCube(500, 0, 50, 50);
 		makeCube(900, 0, 50, 50);
 		makeCube(700, 0, 50, 50);
 		makeCube(500, 200, 50, 50);
@@ -75,7 +75,7 @@ public final class Objects
 		makeCube(700, 200, 50, 50);
 		makeCube(500, -200, 50, 50);
 		makeCube(900, -200, 50, 50);
-		makeCube(700, -200, 50, 50);*/
+		makeCube(700, -200, 50, 50);
 	}
 	private void makePoint(int x, int y, int z)
 	{
