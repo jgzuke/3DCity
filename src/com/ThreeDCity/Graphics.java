@@ -311,7 +311,7 @@ public final class Graphics extends View
 	    public PointWithVector(PanelWithVectors panelHandle, int index)
 	    {
 	    	location = panelHandle.panel[index];
-	    	/*if(index == 0)
+	    	if(index == 0)
 	    	{
 	    		previous = panelHandle.panel[3];
 	    		next = panelHandle.panel[1];
@@ -326,26 +326,27 @@ public final class Graphics extends View
 	    	}
 			if(!pointOnScreen(location))
 			{
+				//TODO
 				double [] p1 = getIntercept(location, previous, panelHandle);
 				double [] p2 = getIntercept(location, next, panelHandle);
 				if(p1 != null && p2 != null)				// if both ways are open
 				{
-					location = p1;
-					panelHandle.branchPoint(index, p2);
+					//location = p1;
+					//panelHandle.branchPoint(index, p2);
 				}
 				if(p1 == null && p2 == null)				// if neither vector goes into view
 				{
-					panelHandle.deletePoint(index);
+					//panelHandle.deletePoint(index);
 				}
 				if(p1 != null && p2 == null)				// if only first vector works
 				{
-					location = p1;
+					//location = p1;
 				}
 				if(p1 == null && p2 != null)				// if only second vector works
 				{
-					location = p2;
+					//location = p2;
 				}
-			}*/
+			}
 	    }
 	    /**
 	     * constructor for point made by branch
@@ -366,9 +367,7 @@ public final class Graphics extends View
 	    	double distanceFromPanel = zoom; //make this some function of zoom. //TODO unify
 			double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
 			double panelHeight = screenHeight*viewSize; // width and height are half full width/height
-			double rotSide = Math.atan(panelWidth/distanceFromPanel);
-			double rotTop = Math.atan(panelHeight/distanceFromPanel);
-	    	
+			
 			double distanceSee = 100000;
 			
 			double [] startXY = {start[0], start[1]};
@@ -376,13 +375,12 @@ public final class Graphics extends View
 	    	double [] startXZ = {start[0], start[2]};
 	    	double [] endXZ = {end[0], end[2]};
 			
-	    	double [] playerRight = {distanceSee*Math.cos(rotSide), distanceSee*Math.sin(rotSide)};	// x and y
-	    	double [] playerLeft = {distanceSee*Math.cos(-rotSide), distanceSee*Math.sin(-rotSide)};	// x and y
-	    	double [] playerTop = {distanceSee*Math.cos(rotTop), distanceSee*Math.sin(rotTop)};	// d and z
-	    	double [] playerBot = {distanceSee*Math.cos(-rotTop), distanceSee*Math.sin(-rotTop)};// d and z
+	    	double [] playerRight = {distanceSee*distanceFromPanel, distanceSee*panelWidth};	// x and y
+	    	double [] playerLeft = {distanceSee*distanceFromPanel, distanceSee*-panelWidth};	// x and y
+	    	double [] playerTop = {distanceSee*distanceFromPanel, distanceSee*panelHeight};		// d and z
+	    	double [] playerBot = {distanceSee*distanceFromPanel, distanceSee*-panelHeight};		// d and z
 	    	
-	    	double [] playerXY = {0, 0};
-	    	double [] playerXZ = {0, 0};
+	    	double [] origin = {0, 0};
 	    	//player is at 0, 0 for both x: y, and d: z
 	    	//rotRight: vector 100m away on right hand side of players sight
 	    	//rotLeft: vector 100m away on left hand side of players sight
@@ -397,10 +395,10 @@ public final class Graphics extends View
 	    	//we need to check if they hit within their domains
 	    	
 	    	double [] hitSides = new double[4]; // right, left, top, bot
-	    	hitSides[0] = pointCollision(playerXY, playerRight, startXY, endXY);
-	    	hitSides[1] = pointCollision(playerXY, playerLeft, startXY, endXY);
-	    	hitSides[2] = pointCollision(playerXZ, playerTop, startXZ, endXZ);
-	    	hitSides[3] = pointCollision(playerXZ, playerBot, startXZ, endXZ);
+	    	hitSides[0] = pointCollision(origin, playerRight, startXY, endXY);
+	    	hitSides[1] = pointCollision(origin, playerLeft, startXY, endXY);
+	    	hitSides[2] = pointCollision(origin, playerTop, startXZ, endXZ);
+	    	hitSides[3] = pointCollision(origin, playerBot, startXZ, endXZ);
 			
 			for(int i = 0; i < 4; i ++)
 			{
