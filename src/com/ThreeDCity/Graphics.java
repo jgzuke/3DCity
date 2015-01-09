@@ -162,6 +162,42 @@ public final class Graphics extends View
 		return p;
 	}
 	/**
+	 * 
+	 * @param pos
+	 */
+	protected double [] relativeCoordinates(double [] pos)
+	{
+		double xo = pos[0]-control.player.x;
+		double yo = pos[1]-control.player.y;
+		double zo = pos[2]-control.player.z;
+		// rotate around origin by control.player rotations
+		double hRot = control.player.hRotation; // angle
+		// rotate horizontally
+		double x1 = (Math.cos(hRot)*xo) - (Math.sin(hRot)*yo);
+		double y = (Math.sin(hRot)*xo) + (Math.cos(hRot)*yo);
+		double zRot = control.player.zRotation; // angle
+		// rotate vertically
+		double x = (Math.cos(zRot)*x1) - (Math.sin(zRot)*zo);
+		double z = (Math.sin(zRot)*x1) + (Math.cos(zRot)*zo);
+		
+		double [] coordinates = {x, y, z};
+		return coordinates;
+	}
+	/**
+	 * takes an z, x, y array, returns and z, y array of a point on the screen, null if off screen
+	 * @param pos	x, y, z of point to project
+	 * @return		the points screen coordinates, or null if doesnt work
+	 */
+	protected double [] getScreenPoint(double [] pos)
+	{
+		double [] coordinates = relativeCoordinates(pos);
+		double [] ratios = {coordinates[1]/coordinates[0], coordinates[2]/coordinates[0]};
+		double [] screenPoint = {testing*distanceFromPanel*ratios[0], 
+								testing*distanceFromPanel*ratios[1]};
+		if(coordinates[0]<0.001) return null;	// if point behind player, or very very close
+		return screenPoint;
+	}
+	/**
 	 * returns whether the rotation set is in players view
 	 * @param rotationSet	the rotation set to check
 	 * @param view			the view to check if it fits in
@@ -429,32 +465,5 @@ public final class Graphics extends View
 		{
 			points[index+1] = new PointWithVector(p1);
 		}
-	}
-	/**
-	 * takes an z, x, y array, returns and z, y array of a point on the screen, null if off screen
-	 * @param pos	x, y, z of point to project
-	 * @return		the points screen coordinates, or null if doesnt work
-	 */
-	protected double [] getScreenPoint(double [] pos)
-	{
-		double xo = pos[0]-control.player.x;
-		double yo = pos[1]-control.player.y;
-		double zo = pos[2]-control.player.z;
-		// rotate around origin by control.player rotations
-		double hRot = control.player.hRotation; // angle
-		// rotate horizontally
-		double x1 = (Math.cos(hRot)*xo) - (Math.sin(hRot)*yo);
-		double y = (Math.sin(hRot)*xo) + (Math.cos(hRot)*yo);
-		double zRot = control.player.zRotation; // angle
-		// rotate vertically
-		double x = (Math.cos(zRot)*x1) - (Math.sin(zRot)*zo);
-		double z = (Math.sin(zRot)*x1) + (Math.cos(zRot)*zo);
-		
-		double [] ratios = {y/x, z/x};
-		
-		double [] screenPoint = {testing*distanceFromPanel*ratios[0], 
-								testing*distanceFromPanel*ratios[1]};
-		if(x<0.001) return null;	// if point behind player, or very very close
-		return screenPoint;
 	}
 }
