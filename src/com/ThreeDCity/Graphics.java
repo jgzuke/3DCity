@@ -470,37 +470,29 @@ public final class Graphics extends View
 	protected void drawPoint(Point point, Canvas g)
 	{
 		double [] pos = point.pos.clone();
-		double [] points = getRelativePoint(pos);
-		double [] screenPoint = getScreenPoint(points);
-		g.drawCircle((int)screenPoint[0], (int)screenPoint[1], 5, paint);
+		double [] screen = getScreenPoint(pos); // these are point relative to player and facing forward
+		// returns x and y on screen
+		g.drawCircle((int)screen[0], (int)screen[1], 5, paint);
 	}
-	protected double [] getRelativePoint(double [] pos)
+	protected double [] getScreenPoint(double [] pos)
 	{
 		double xo = pos[0]-control.player.x;
 		double yo = pos[1]-control.player.y;
-		// rotate around origin by control.player.hRotation
-		double a = control.player.hRotation; // angle
-		double x = (Math.cos(a)*xo) - (Math.sin(a)*yo);
-		double y = (Math.sin(a)*xo) + (Math.cos(a)*yo);
+		double zo = pos[2]-control.player.z;
+		// rotate around origin by control.player rotations
+		double hRot = control.player.hRotation; // angle
+		// rotate horizontally
+		double x1 = (Math.cos(hRot)*xo) - (Math.sin(hRot)*yo);
+		double y = (Math.sin(hRot)*xo) + (Math.cos(hRot)*yo);
+		double zRot = control.player.zRotation; // angle
+		// rotate vertically
+		double x = (Math.cos(zRot)*x1) - (Math.sin(zRot)*zo);
+		double z = (Math.sin(zRot)*x1) + (Math.cos(zRot)*zo);
 		
-		double d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-		double z = pos[2]-control.player.z;
-		double [] rots = {Math.atan(y/x)-control.player.hRotation, Math.atan(z/d)-control.player.zRotation};
-		return rots;
-	}
-	protected double [] getRotations(double [] pos)
-	{
-		double ddif = Math.sqrt(Math.pow(pos[0], 2) + Math.pow(pos[1], 2));
-		double [] rots = {Math.atan(pos[1]/pos[2]), Math.atan(pos[2]/ddif)};
-		return rots;
-	}
-	protected double [] getScreenPoint(double [] rots)
-	{
-		// screenpoint0 is pretty much ydif/xdif
-		double [] screenPoint = {testing*distanceFromPanel*Math.tan(rots[0]), 
-								-testing*distanceFromPanel*Math.tan(rots[1])};
+		double [] ratios = {y/x, z/x};
+		
+		double [] screenPoint = {testing*distanceFromPanel*ratios[0], 
+								testing*distanceFromPanel*ratios[1]};
 		return screenPoint;
 	}
-	
-	
 }

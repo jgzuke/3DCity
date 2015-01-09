@@ -48,12 +48,10 @@ public final class Player implements OnTouchListener
 	 */
 	protected void frameCall()
 	{
-		//hRotation += 0.1;
-		//zRotation += 0.01;
-		if(hRotation>Math.PI) hRotation -= Math.PI;
-		if(hRotation<0) hRotation += Math.PI;
-		if(zRotation>Math.PI) zRotation -= Math.PI;
-		if(zRotation<0) zRotation += Math.PI;
+		if(hRotation>Math.PI*2) hRotation -= Math.PI*2;
+		if(hRotation<0) hRotation += Math.PI*2;
+		if(zRotation>Math.PI*2) zRotation -= Math.PI*2;
+		if(zRotation<0) zRotation += Math.PI*2;
 	}
 	public boolean clickedMove(float x, float y)
 	{
