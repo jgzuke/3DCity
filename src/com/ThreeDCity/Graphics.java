@@ -22,17 +22,11 @@ public final class Graphics extends View
 	/** 
 	 * Initializes all undecided variables, loads level, creates player and enemy objects, and starts frameCaller
 	 */
-	protected double zoom = 5;
 	double screenWidth, screenHeight;
 	
 	
-	// distance you are from the panel
-	private double viewSize = 0.005;
-	// multiply screenSize by viewSize to get panel size
-	private double testing = 50;
-	
 	private double x, y, z;
-	private double hRot, zRot;
+	private double hRot, zRot, tRot;
 	// factor to multiply points by to get edge of player view drawn at edge o screen
 	// at rotToTop etc you should draw edge of screen
 	
@@ -41,6 +35,7 @@ public final class Graphics extends View
 	private Paint paint;
 	private int screenSize = 4000;
 	private int halfScreenSize = screenSize/2;
+	private double zoom = 1;
 	
 	public Graphics(Context contextSet, Controller controlSet, double [] dimensions)
 	{
@@ -209,9 +204,11 @@ public final class Graphics extends View
 	protected double [] getScreenPoint(double [] coordinates)
 	{
 		double [] ratios = {coordinates[1]/coordinates[0], coordinates[2]/coordinates[0]};
-		double [] screenPoint = {halfScreenSize*ratios[0], 
+		double [] point = {halfScreenSize*ratios[0], 
 								-halfScreenSize*ratios[1]};
-		return screenPoint;
+		double [] pointTilted = {	(Math.cos(tRot)*point[0]) - (Math.sin(tRot)*point[1]),
+									(Math.sin(tRot)*point[0]) + (Math.cos(tRot)*point[1])};
+		return pointTilted;
 	}
 	/**
 	 * returns the rotations to each end of the screen
@@ -224,6 +221,7 @@ public final class Graphics extends View
 		z = control.player.z;
 		hRot = control.player.hRotation;
 		zRot = control.player.zRotation;
+		tRot = control.player.tiltRotation;
 	}
 	
 	

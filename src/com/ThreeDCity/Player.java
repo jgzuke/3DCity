@@ -16,6 +16,7 @@ public final class Player implements OnTouchListener
 	protected int z = 190; //height of eyes
 	protected double hRotation = 0; //looking directly along x axis , -ve is left
 	protected double zRotation = 0; //looking directly forward, -ve is down
+	protected double tiltRotation = 0;
 	protected int looking = -1; 	// -1 is nope
 	protected float lastLookX = -1; 	// -1 is nope
 	protected float lastLookY = -1; 	// -1 is nope
