@@ -45,10 +45,6 @@ public final class Graphics extends View
 		control = controlSet;
 		paint = new Paint();
 	}
-	protected void frameCall()
-	{
-		invalidate();
-	}
 	/**
 	 * draws every object as well as the ground in the distance
 	 */

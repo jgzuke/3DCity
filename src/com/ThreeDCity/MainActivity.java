@@ -38,19 +38,13 @@ public class MainActivity extends Activity implements SensorEventListener
     public void onSensorChanged(SensorEvent event)
     {
     	float rotationMatrix[];      
-    	switch(event.sensor.getType())
+    	if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
     	{      
-    		case Sensor.TYPE_ACCELEROMETER:
-            //outputX.setText("x:"+Float.toString(event.values[0]));
-            //outputY.setText("y:"+Float.toString(event.values[1]));
-            //outputZ.setText("z:"+Float.toString(event.values[2]));
-    		break;
-    	  case Sensor.TYPE_ROTATION_VECTOR:
     	       rotationMatrix=new float[16];
-    	       mSensorManager.getRotationMatrixFromVector(rotationMatrix,event.values);
+    	       mSensorManager.getRotationMatrixFromVector(rotationMatrix, event.values);
     	       getOrientation(rotationMatrix);
-    	       break;
-    	 }//switch case ends
+    	       control.graphics.postInvalidate();
+    	}
      }
     private void getOrientation(float[] rotationMatrix)
     {
@@ -91,14 +85,12 @@ public class MainActivity extends Activity implements SensorEventListener
     protected void onResume()
     {
        super.onResume();
-       mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), mSensorManager.SENSOR_DELAY_GAME);
        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), mSensorManager.SENSOR_DELAY_GAME);
     }
     @Override
     protected void onStop()
     {
        super.onStop();
-       mSensorManager.unregisterListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER));
        mSensorManager.unregisterListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR));
     }
 }

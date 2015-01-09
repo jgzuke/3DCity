@@ -16,15 +16,6 @@ public final class Controller
 	protected Objects objects;
 	private Activity activity;
 	private Context context;
-	private Handler mHandler = new Handler();
-	protected Runnable frameCaller = new Runnable()
-	{
-		public void run()
-		{
-			frameCall();
-			mHandler.postDelayed(this, 50);
-		}
-	};	
 	/** 
 	 * Initializes all undecided variables, loads level, creates player and enemy objects, and starts frameCaller
 	 */
@@ -36,11 +27,5 @@ public final class Controller
 		objects = new Objects(this);
 		graphics = new Graphics(contextSet, this, dimensions);
 		graphics.setOnTouchListener(player);
-		frameCaller.run();
-	}
-	private void frameCall()
-	{
-		player.frameCall();
-		graphics.frameCall();
 	}
 }
