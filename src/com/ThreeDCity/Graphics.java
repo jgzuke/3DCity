@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ThreeDCity.Objects.Panel;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -22,7 +23,9 @@ public final class Graphics extends View
 	 * Initializes all undecided variables, loads level, creates player and enemy objects, and starts frameCaller
 	 */
 	protected double zoom = 5;
-	protected double distanceFromPanel = 5;
+	double screenWidth, screenHeight;
+	
+	
 	// distance you are from the panel
 	private double viewSize = 0.005;
 	// multiply screenSize by viewSize to get panel size
@@ -33,15 +36,15 @@ public final class Graphics extends View
 	// factor to multiply points by to get edge of player view drawn at edge o screen
 	// at rotToTop etc you should draw edge of screen
 	
-    protected double angSide, angUp;
-	double screenWidth, screenHeight;
+    
 	private Controller control;
 	private Paint paint;
+	private int screenSize = 4000;
+	private int halfScreenSize = screenSize/2;
 	
 	public Graphics(Context contextSet, Controller controlSet, double [] dimensions)
 	{
 		super(contextSet);
-		
 		screenWidth = dimensions[0];
 		screenHeight = dimensions[1];
 		control = controlSet;
@@ -60,15 +63,10 @@ public final class Graphics extends View
 		getView();
 		//	(screenHeight/2) = Math.tan(rotToPanelTop)*distanceFromPanel*testing
 		//	testing = (screenHeight)/(2*Math.tan(rotToPanelTop)*distanceFromPanel)
-		testing = (screenHeight)/(2 * Math.tan(angUp)*distanceFromPanel);
-		testing = (screenWidth)/(2 * Math.tan(angSide)*distanceFromPanel);
-		paint.setColor(Color.WHITE);
-		g.drawRect(0, 0, (int)screenWidth, (int)screenHeight, paint);
-		paint.setColor(Color.GREEN);
-		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(zRot)*distanceFromPanel*testing), (int)screenWidth, (int)screenHeight, paint);
-		paint.setColor(Color.GRAY);
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
 		
+		paint.setColor(Color.GREEN);
+		g.drawRect(-halfScreenSize, (int)(-Math.tan(zRot)*halfScreenSize), halfScreenSize, halfScreenSize, paint);
 		
 		ArrayList<Panel> panels = (ArrayList<Panel>) control.objects.panels;
 		int [] orderToDraw = orderPanels(panels);
@@ -147,7 +145,6 @@ public final class Graphics extends View
 			{
 				path.lineTo((int)p.get(i)[0], (int)p.get(i)[1]); // make lines to each corner
 			}
-			paint.setStyle(Style.STROKE);
 			paint.setColor(panel.color);
 			g.drawPath(path, paint);						// draws polygon
 		}
@@ -212,8 +209,8 @@ public final class Graphics extends View
 	protected double [] getScreenPoint(double [] coordinates)
 	{
 		double [] ratios = {coordinates[1]/coordinates[0], coordinates[2]/coordinates[0]};
-		double [] screenPoint = {testing*distanceFromPanel*ratios[0], 
-								testing*distanceFromPanel*ratios[1]};
+		double [] screenPoint = {halfScreenSize*ratios[0], 
+								-halfScreenSize*ratios[1]};
 		return screenPoint;
 	}
 	/**
@@ -222,11 +219,6 @@ public final class Graphics extends View
 	 */
 	protected void getView()
 	{
-		double distanceFromPanel = zoom; //make this some function of zoom.
-		double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
-		double panelHeight = screenHeight*viewSize; // width and height are half full width/height
-		angSide = panelWidth/distanceFromPanel;
-		angUp = panelHeight/distanceFromPanel;
 		x = control.player.x;
 		y = control.player.y;
 		z = control.player.z;
@@ -364,21 +356,15 @@ public final class Graphics extends View
 	     */
 	    public double[] getIntercept(double [] start, double [] end, PanelWithVectors panel)
 	    {
-	    	double distanceFromPanel = zoom; //make this some function of zoom. //TODO unify
-			double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
-			double panelHeight = screenHeight*viewSize; // width and height are half full width/height
-			
-			double distanceSee = 100000;
-			
 			double [] startXY = {start[0], start[1]};
 	    	double [] endXY = {end[0], end[1]};
 	    	double [] startXZ = {start[0], start[2]};
 	    	double [] endXZ = {end[0], end[2]};
 			
-	    	double [] playerRight = {distanceSee*distanceFromPanel, distanceSee*panelWidth};	// x and y
-	    	double [] playerLeft = {distanceSee*distanceFromPanel, distanceSee*-panelWidth};	// x and y
-	    	double [] playerTop = {distanceSee*distanceFromPanel, distanceSee*panelHeight};		// d and z
-	    	double [] playerBot = {distanceSee*distanceFromPanel, distanceSee*-panelHeight};		// d and z
+	    	double [] playerRight = {10000, 20000};	// x and y
+	    	double [] playerLeft = {10000, -20000};	// x and y
+	    	double [] playerTop = {10000, 20000};		// d and z
+	    	double [] playerBot = {10000, -20000};		// d and z
 	    	
 	    	double [] origin = {0, 0};
 	    	//player is at 0, 0 for both x: y, and d: z
@@ -448,10 +434,8 @@ public final class Graphics extends View
 			if(point[0] <= 0.001) return false;
 			double ratioXY = Math.abs(point[1]/point[0]);
 			double ratioXZ = Math.abs(point[2]/point[0]);
-			double viewRatioXY = angSide;
-			double viewRatioXZ = angUp;
-			if(ratioXY>viewRatioXY) return false;
-			if(ratioXZ>viewRatioXZ) return false;
+			if(ratioXY>2) return false;
+			if(ratioXZ>2) return false;
 			return true;
 		}
 	    /**

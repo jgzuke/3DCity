@@ -50,8 +50,8 @@ public final class Player implements OnTouchListener
 	{
 		if(hRotation>Math.PI*2) hRotation -= Math.PI*2;
 		if(hRotation<0) hRotation += Math.PI*2;
-		if(zRotation>Math.PI*2) zRotation -= Math.PI*2;
-		if(zRotation<0) zRotation += Math.PI*2;
+		if(zRotation>Math.PI/3) zRotation = Math.PI/3;
+		if(zRotation<-Math.PI/3) zRotation = -Math.PI/3;
 	}
 	public boolean clickedMove(float x, float y)
 	{
@@ -76,7 +76,7 @@ public final class Player implements OnTouchListener
         case MotionEvent.ACTION_MOVE:
             if(looking != -1)
             {
-            	hRotation -= (e.getX(e.findPointerIndex(looking))-lastLookX)/1000;
+            	hRotation += (e.getX(e.findPointerIndex(looking))-lastLookX)/1000;
             	zRotation -= (e.getY(e.findPointerIndex(looking))-lastLookY)/1000;
             	lastLookX = e.getX(e.findPointerIndex(looking));
         		lastLookY = e.getY(e.findPointerIndex(looking));
