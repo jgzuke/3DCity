@@ -23,7 +23,21 @@ public final class Objects
 			color = colorSet;
 		}
 	}
+	public class Point
+	{
+		double [] pos; // x, y, z
+		public Point(double [] posSet)
+		{
+			pos = posSet;
+		}
+		public Point(double x, double y, double z)
+		{
+			double [] array = {x, y, z};
+			pos = array;
+		}
+	}
 	protected ArrayList<Panel> panels = new ArrayList<Panel>();
+	protected ArrayList<Point> points = new ArrayList<Point>();
 	// each panes has five points, four corners [0-3] and a middle [4]
 	// each point is {x, y, z}
 	// everything is in cm for sizing.
@@ -38,10 +52,34 @@ public final class Objects
 	}
 	private void makeBackGround()
 	{
+		makePoint(500, -140, 0);
+		makePoint(500, -120, 0);
+		makePoint(500, -100, 0);
+		makePoint(500, -80, 0);
+		makePoint(500, -60, 0);
+		makePoint(500, -40, 0);
+		makePoint(500, -20, 0);
+		makePoint(500, 0, 0);
+		makePoint(500, 20, 0);
+		makePoint(500, 40, 0);
+		makePoint(500, 60, 0);
+		makePoint(500, 80, 0);
+		makePoint(500, 100, 0);
+		makePoint(500, 120, 0);
+		makePoint(500, 140, 0);
+		/*makeCube(500, 0, 50, 50);
+		makeCube(900, 0, 50, 50);
 		makeCube(700, 0, 50, 50);
-		makeCube(1000, 0, 50, 50);
-		makeCube(850, 0, 50, 50);
-		makeCube(1150, 0, 50, 50);
+		makeCube(500, 200, 50, 50);
+		makeCube(900, 200, 50, 50);
+		makeCube(700, 200, 50, 50);
+		makeCube(500, -200, 50, 50);
+		makeCube(900, -200, 50, 50);
+		makeCube(700, -200, 50, 50);*/
+	}
+	private void makePoint(int x, int y, int z)
+	{
+		points.add(new Point(x, y, z));
 	}
 	private void makeCube(int x, int y, int z, int w)
 	{

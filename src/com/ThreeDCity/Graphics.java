@@ -3,6 +3,7 @@ package com.ThreeDCity;
 import java.util.ArrayList;
 
 import com.ThreeDCity.Objects.Panel;
+import com.ThreeDCity.Objects.Point;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -21,9 +22,16 @@ public final class Graphics extends View
 	/** 
 	 * Initializes all undecided variables, loads level, creates player and enemy objects, and starts frameCaller
 	 */
-	protected double zoom;
+	protected double zoom = 5;
+	protected double distanceFromPanel = 5;
+	// distance you are from the panel
+	private double viewSize = 0.005;
+	// multiply screenSize by viewSize to get panel size
 	private double testing = 50;
-	private double viewSize = 1/200;
+	// factor to multiply points by to get edge of player view drawn at edge o screen
+	// at rotToTop etc you should draw edge of screen
+	
+	
 	
 	private ViewRotations v;
 	double screenWidth, screenHeight;
@@ -33,6 +41,7 @@ public final class Graphics extends View
 	public Graphics(Context contextSet, Controller controlSet, double [] dimensions)
 	{
 		super(contextSet);
+		
 		screenWidth = dimensions[0];
 		screenHeight = dimensions[1];
 		control = controlSet;
@@ -43,23 +52,32 @@ public final class Graphics extends View
 		invalidate();
 	}
 	/**
-	 * draws every object as wel as the ground in the distance
+	 * draws every object as well as the ground in the distance
 	 */
 	@Override
 	protected void onDraw(Canvas g)
 	{
 		v =  getView();
+		//	(screenHeight/2) = Math.tan(v.rotToPanelTop)*v.distanceFromPanel*testing
+		//	testing = (screenHeight)/(2*Math.tan(v.rotToPanelTop)*v.distanceFromPanel)
+		testing = (screenHeight)/(2 * Math.tan((v.topRot-v.bottomRot)/2)*v.distanceFromPanel);
+		testing = (screenWidth)/(2 * Math.tan((v.rightRot-v.leftRot)/2)*v.distanceFromPanel);
 		paint.setColor(Color.WHITE);
 		g.drawRect(0, 0, (int)screenWidth, (int)screenHeight, paint);
 		paint.setColor(Color.GREEN);
 		g.drawRect(0, (int)(screenHeight/2)+(int)(Math.tan(v.pRotation[1])*v.distanceFromPanel*testing), (int)screenWidth, (int)screenHeight, paint);
 		paint.setColor(Color.GRAY);
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
-		ArrayList<Panel> panels = (ArrayList<Panel>)control.objects.panels.clone();
+		/*ArrayList<Panel> panels = (ArrayList<Panel>)control.objects.panels.clone();
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
 		{
 			drawPanel(panels.get(orderToDraw[i]), g);
+		}*/
+		ArrayList<Point> points = (ArrayList<Point>)control.objects.points.clone();
+		for(int i = 0; i < points.size(); i++)
+		{
+			drawPoint(points.get(i), g);
 		}
 	}
 	/**
@@ -408,7 +426,7 @@ public final class Graphics extends View
 	 * object that stores rotations and distance of view
 	 */
 	public class ViewRotations {
-	    protected double topRot, bottomRot, leftRot, rightRot;
+		protected double topRot, bottomRot, leftRot, rightRot;
 	    protected double distanceFromPanel;
 	    protected double [] pRotation;
 	}
@@ -421,6 +439,7 @@ public final class Graphics extends View
 		double distanceFromPanel = zoom; //make this some function of zoom.
 		double panelWidth = screenWidth*viewSize; // has to keep proportions with screen width and height
 		double panelHeight = screenHeight*viewSize; // width and height are half full width/height
+		
 		double rotToPanelSide = Math.atan(panelWidth/distanceFromPanel);
 		double rotToPanelTop = Math.atan(panelHeight/distanceFromPanel);
 		double[] rotations = control.player.getRotation();
@@ -433,4 +452,55 @@ public final class Graphics extends View
 		view.distanceFromPanel = distanceFromPanel;
 		return view;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	// THIS IS JUST TESTING CODE IGNORE ALL THIS
+	
+	/**
+	 * draws panel sent to function
+	 * @param panel the panel to draw
+	 */
+	protected void drawPoint(Point point, Canvas g)
+	{
+		double [] pos = point.pos.clone();
+		double [] points = getRelativePoint(pos);
+		double [] screenPoint = getScreenPoint(points);
+		g.drawCircle((int)screenPoint[0], (int)screenPoint[1], 5, paint);
+	}
+	protected double [] getRelativePoint(double [] pos)
+	{
+		double xo = pos[0]-control.player.x;
+		double yo = pos[1]-control.player.y;
+		// rotate around origin by control.player.hRotation
+		double a = control.player.hRotation; // angle
+		double x = (Math.cos(a)*xo) - (Math.sin(a)*yo);
+		double y = (Math.sin(a)*xo) + (Math.cos(a)*yo);
+		
+		double d = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+		double z = pos[2]-control.player.z;
+		double [] rots = {Math.atan(y/x)-control.player.hRotation, Math.atan(z/d)-control.player.zRotation};
+		return rots;
+	}
+	protected double [] getRotations(double [] pos)
+	{
+		double ddif = Math.sqrt(Math.pow(pos[0], 2) + Math.pow(pos[1], 2));
+		double [] rots = {Math.atan(pos[1]/pos[2]), Math.atan(pos[2]/ddif)};
+		return rots;
+	}
+	protected double [] getScreenPoint(double [] rots)
+	{
+		// screenpoint0 is pretty much ydif/xdif
+		double [] screenPoint = {testing*distanceFromPanel*Math.tan(rots[0]), 
+								-testing*distanceFromPanel*Math.tan(rots[1])};
+		return screenPoint;
+	}
+	
+	
 }

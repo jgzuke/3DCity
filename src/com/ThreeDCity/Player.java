@@ -1,5 +1,6 @@
 package com.ThreeDCity;
 
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -49,6 +50,10 @@ public final class Player implements OnTouchListener
 	{
 		//hRotation += 0.1;
 		//zRotation += 0.01;
+		if(hRotation>Math.PI) hRotation -= Math.PI;
+		if(hRotation<0) hRotation += Math.PI;
+		if(zRotation>Math.PI) zRotation -= Math.PI;
+		if(zRotation<0) zRotation += Math.PI;
 	}
 	public boolean clickedMove(float x, float y)
 	{
