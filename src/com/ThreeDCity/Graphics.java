@@ -60,9 +60,6 @@ public final class Graphics extends View
 		//	testing = (screenHeight)/(2*Math.tan(rotToPanelTop)*distanceFromPanel)
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
 		
-		paint.setColor(Color.GREEN);
-		g.drawRect(-halfScreenSize, (int)(-Math.tan(zRot)*halfScreenSize), halfScreenSize, halfScreenSize, paint);
-		
 		ArrayList<Panel> panels = (ArrayList<Panel>) control.objects.panels;
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)

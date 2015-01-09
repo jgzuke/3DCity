@@ -38,6 +38,8 @@ public final class Objects
 	}
 	private void makeBackGround()
 	{
+		int a = 10000;
+		//makePanel(a, a, 0, a, -a, 0, -a, -a, 0, -a, a, 0, Color.rgb(0, 255, 0));
 		makeCube(900, 0, 50, 50);
 		makeCube(700, 0, 50, 50);
 		makeCube(500, 200, 50, 50);
