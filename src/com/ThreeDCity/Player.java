@@ -46,10 +46,6 @@ public final class Player implements OnTouchListener
 	 */
 	protected void frameCall()
 	{
-		if(hRotation>Math.PI*2) hRotation -= Math.PI*2;
-		if(hRotation<0) hRotation += Math.PI*2;
-		if(zRotation>Math.PI/3) zRotation = Math.PI/3;
-		if(zRotation<-Math.PI/3) zRotation = -Math.PI/3;
 		switch(moving)
 		{
 		case -2:

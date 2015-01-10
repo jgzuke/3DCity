@@ -57,9 +57,6 @@ public class MainActivity extends Activity implements SensorEventListener
 	    control.player.zRotation = roll - Math.PI/2; // y axis
 	    control.player.hRotation = azimuth; // y axis
 	    control.player.tiltRotation = pitch; // x axis
-	    Log.e("mine", "Az: " + Double.toString(azimuth*57.2958));
-	    Log.e("mine", "Pi: " + Double.toString(pitch*57.2958));
-	    Log.e("mine", "Ro: " + Double.toString(roll*57.2958));
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}  
@@ -89,7 +86,7 @@ public class MainActivity extends Activity implements SensorEventListener
        mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR), mSensorManager.SENSOR_DELAY_GAME);
     }
     @Override
-    protected void onStop()
+    protected void onPause()
     {
        super.onStop();
        mSensorManager.unregisterListener(this, mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR));
