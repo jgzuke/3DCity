@@ -56,6 +56,16 @@ public final class Graphics extends View
 		//	testing = (screenHeight)/(2*Math.tan(rotToPanelTop)*distanceFromPanel)
 		g.translate((int)(screenWidth/2), (int)(screenHeight/2));
 		
+		Path path = new Path();
+		path.moveTo(-5000, 0);//(float)-Math.sin(tRot)*5000);	// top left
+		path.lineTo(5000, 0);//(float)Math.sin(tRot)*5000);	// top right
+		path.lineTo(5000, 5000);	// bot right
+		path.lineTo(5000, -5000);	// bot left
+		path.lineTo(-5000, 0);//(float)-Math.sin(tRot)*5000);	// top left
+		paint.setStyle(Style.FILL);
+		paint.setColor(Color.GREEN);
+		g.drawPath(path, paint);
+		
 		ArrayList<Panel> panels = (ArrayList<Panel>) control.objects.panels;
 		int [] orderToDraw = orderPanels(panels);
 		for(int i = 0; i < panels.size(); i++)
@@ -73,9 +83,11 @@ public final class Graphics extends View
 		int [] distances = new int[panels.size()];
 		for(int i = 0; i < panels.size(); i++)
 		{
-			distances[i] = ((int) Math.sqrt(	Math.pow(panels.get(i).points[4][0]-x, 2)+	// X-Direction
-											Math.pow(panels.get(i).points[4][1]-y, 2)+	// Y-Direction
-											Math.pow(panels.get(i).points[4][2]-z, 2)));	// Z-Direction
+			int center = panels.get(i).points.length-1;
+			int [] point = panels.get(i).points[center];
+			distances[i] = ((int) Math.sqrt(	Math.pow(point[0]-x, 2)+	// X-Direction
+											Math.pow(point[1]-y, 2)+	// Y-Direction
+											Math.pow(point[2]-z, 2)));	// Z-Direction
 		}
 		for(int i = 0; i < panels.size(); i++)	// first elements should be farthest, so drawn overtop
 		{
@@ -133,8 +145,12 @@ public final class Graphics extends View
 			{
 				path.lineTo((int)p.get(i)[0], (int)p.get(i)[1]); // make lines to each corner
 			}
+			paint.setStyle(Style.FILL);
 			paint.setColor(panel.color);
-			g.drawPath(path, paint);						// draws polygon
+			g.drawPath(path, paint);
+			paint.setStyle(Style.STROKE);
+			paint.setColor(Color.BLACK);
+			g.drawPath(path, paint);
 		}
 	}
 	/**
@@ -144,14 +160,14 @@ public final class Graphics extends View
 	 */
 	protected ArrayList<double[]> getScreenPointSet(int[][] panelSet)
 	{
-		double [][] panelSetDouble = new double[5][3];
-		for(int i = 0 ; i < 5; i++)
+		double [][] panelSetDouble = new double[panelSet.length][3];
+		for(int i = 0 ; i < panelSet.length; i++)
 		{
 			panelSetDouble[i] = relativeCoordinates(intToDoubleArray(panelSet[i]));
 		}
 		PanelWithVectors panel = new PanelWithVectors(panelSetDouble, this);
 		ArrayList<double[]> p = new ArrayList<double[]>();
-		for(int i = 0; i < 8; i++)
+		for(int i = 0; i < (panelSet.length-1)*2; i++)
 		{
 			if(panel.points[i] != null)
 			{
@@ -232,11 +248,11 @@ public final class Graphics extends View
 	
 	
 	/*
-	 * object that stores 4 point with vectors pointing around the polygon
+	 * object that stores n point with vectors pointing around the polygon
 	 */
 	public class PanelWithVectors
 	{
-		PointWithVector [] points = new PointWithVector[8];
+		PointWithVector [] points;
 		protected double[][] panel;
 		protected Graphics graphics;
 		/**
@@ -247,9 +263,10 @@ public final class Graphics extends View
 		 */
 		public PanelWithVectors(double[][] panelSet, Graphics graphicsSet)
 		{
+			points = new PointWithVector[(panelSet.length-1)*2];
 			graphics = graphicsSet;
 			panel = panelSet;
-			for(int i = 0; i < 4; i++)
+			for(int i = 0; i < panelSet.length-1; i++)
 			{
 				points[i*2] = new PointWithVector(this, i);
 			}
@@ -296,11 +313,11 @@ public final class Graphics extends View
 	    	location = panelHandle.panel[index];
 	    	if(index == 0)
 	    	{
-	    		previous = panelHandle.panel[3];
-	    		next = panelHandle.panel[1];
-	    	} else if(index == 3)
+	    		previous = panelHandle.panel[panelHandle.panel.length-2];
+	    		next = panelHandle.panel[index+1];
+	    	} else if(index == panelHandle.panel.length-2)
 	    	{
-	    		previous = panelHandle.panel[2];
+	    		previous = panelHandle.panel[index-1];
 	    		next = panelHandle.panel[0];
 	    	} else
 	    	{

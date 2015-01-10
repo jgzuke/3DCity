@@ -41,11 +41,22 @@ public final class Player implements OnTouchListener
 		double[] rotation = {hRotation, zRotation};
 		return rotation;
 	}
+	double zVel = 0; // for jumping
+	double k = 0.1;
 	/**
 	 * what actions player takes every frame
 	 */
 	protected void frameCall()
 	{
+		if(zRotation > Math.PI/3) zRotation = Math.PI/3;
+		if(zRotation > Math.PI/3) zRotation = Math.PI/3;
+		z += zVel * 10;
+		zVel -= 0.1;
+		if(z < 190)
+		{
+			z = 190;
+			zVel = 0;
+		}
 		switch(moving)
 		{
 		case -2:
@@ -78,7 +89,10 @@ public final class Player implements OnTouchListener
         case MotionEvent.ACTION_DOWN:
         	double x = (double)e.getX() / control.graphics.screenWidth; 
         	double y = (double)e.getY() / control.graphics.screenHeight; // both 0-1
-        	if(Math.abs(x-0.5) > Math.abs(y-0.5))
+        	if(Math.abs(x-0.5) < 0.2 && Math.abs(y-0.5)<0.2)
+        	{
+        		zVel = 2;
+        	} else if(Math.abs(x-0.5) > Math.abs(y-0.5))
         	{
         		if(x>0.5)
         		{
