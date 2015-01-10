@@ -37,6 +37,7 @@ public class MainActivity extends Activity implements SensorEventListener
     @TargetApi(9)
     public void onSensorChanged(SensorEvent event)
     {
+    	control.player.frameCall();
     	float rotationMatrix[];      
     	if(event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
     	{      

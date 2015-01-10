@@ -17,10 +17,7 @@ public final class Player implements OnTouchListener
 	protected double hRotation = 0; //looking directly along x axis , -ve is left
 	protected double zRotation = 0; //looking directly forward, -ve is down
 	protected double tiltRotation = 0;
-	protected int looking = -1; 	// -1 is nope
-	protected float lastLookX = -1; 	// -1 is nope
-	protected float lastLookY = -1; 	// -1 is nope
-	protected int moving = -1;	// -1 is false
+	protected int moving = 0;	/* -2: left, -1: back, 0: none, 1: forward, 2: right*/
 	private Controller control;
 	public Player(Controller controlSet)
 	{
@@ -53,6 +50,25 @@ public final class Player implements OnTouchListener
 		if(hRotation<0) hRotation += Math.PI*2;
 		if(zRotation>Math.PI/3) zRotation = Math.PI/3;
 		if(zRotation<-Math.PI/3) zRotation = -Math.PI/3;
+		switch(moving)
+		{
+		case -2:
+			x -= Math.sin(hRotation)*5;
+			y += Math.cos(hRotation)*5;
+			break;
+		case -1:
+			x += Math.cos(hRotation)*5;
+			y += Math.sin(hRotation)*5;
+			break;
+		case 1:
+			x -= Math.cos(hRotation)*5;
+			y -= Math.sin(hRotation)*5;
+			break;
+		case 2:
+			x += Math.sin(hRotation)*5;
+			y -= Math.cos(hRotation)*5;
+			break;
+		}
 	}
 	public boolean clickedMove(float x, float y)
 	{
@@ -64,59 +80,32 @@ public final class Player implements OnTouchListener
 		int actionMask = e.getActionMasked();
         switch (actionMask){
         case MotionEvent.ACTION_DOWN:
-        	if(clickedMove(e.getX(), e.getY()))
+        	double x = (double)e.getX() / control.graphics.screenWidth; 
+        	double y = (double)e.getY() / control.graphics.screenHeight; // both 0-1
+        	if(Math.abs(x-0.5) > Math.abs(y-0.5))
         	{
-        		moving = e.getPointerId(0);
+        		if(x>0.5)
+        		{
+                	moving = 2;
+        		} else
+        		{
+        			moving = -2;
+        		}
         	} else
         	{
-        		looking = e.getPointerId(0);
-        		lastLookX = e.getX();
-        		lastLookY = e.getY();
+        		if(y>0.5)
+        		{
+        			moving = 1;
+        		} else
+        		{
+        			moving = -1;
+        		}
         	}
-        break;
-        case MotionEvent.ACTION_MOVE:
-            if(looking != -1)
-            {
-            	hRotation += (e.getX(e.findPointerIndex(looking))-lastLookX)/1000;
-            	zRotation -= (e.getY(e.findPointerIndex(looking))-lastLookY)/1000;
-            	lastLookX = e.getX(e.findPointerIndex(looking));
-        		lastLookY = e.getY(e.findPointerIndex(looking));
-            }
-            if(moving != -1)
-            {
-	            moveForward();
-            }
         break;
         case MotionEvent.ACTION_UP:
-        	looking = -1;
-        	moving = -1;
-        break;
-        case MotionEvent.ACTION_POINTER_UP:
-        	if(e.getPointerId(e.getActionIndex()) == looking)
-        	{
-        		looking = -1;
-        	}
-        	if(e.getPointerId(e.getActionIndex()) == moving)
-        	{
-        		moving = -1;
-        	}
-        break;
-        case MotionEvent.ACTION_POINTER_DOWN:
-        	if(clickedMove(e.getX(), e.getY()))
-        	{
-        		moving = e.getPointerId(e.getActionIndex());
-        	} else
-        	{
-        		looking = e.getPointerId(e.getActionIndex());
-        		lastLookX = e.getX(e.getActionIndex());
-        		lastLookY = e.getY(e.getActionIndex());
-        	}
+        	moving = 0;
         break;
         }
         return true;
-	}
-	private void moveForward() {
-		x += Math.cos(hRotation)*5;
-		y += Math.sin(hRotation)*5;
 	}
 }
