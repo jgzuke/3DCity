@@ -36,14 +36,10 @@ public final class Objects
 	{
 		int a = 10000;
 		makeJZ();
-		makeCube(825, 0, 50, 50, Color.rgb(200, 200, 200));
-		makeCube(625, 0, 50, 50, Color.rgb(200, 200, 100));
 		makeCube(425, 200, 50, 50, Color.rgb(200, 100, 200));
 		makeCube(825, 200, 50, 50, Color.rgb(200, 100, 100));
-		makeCube(625, 200, 50, 50, Color.rgb(100, 200, 200));
 		makeCube(425, -200, 50, 50, Color.rgb(100, 200, 100));
 		makeCube(825, -200, 50, 50, Color.rgb(100, 100, 200));
-		makeCube(625, -200, 50, 50, Color.rgb(100, 100, 100));
 	}
 	private void makeJZ()
 	{
@@ -149,9 +145,9 @@ public final class Objects
 			ySum += panel[i][1];
 			zSum += panel[i][2];
 		}
-		newPanel[panel.length][0] = xSum;
-		newPanel[panel.length][1] = ySum;
-		newPanel[panel.length][2] = zSum;
+		newPanel[panel.length][0] = xSum/panel.length;
+		newPanel[panel.length][1] = ySum/panel.length;
+		newPanel[panel.length][2] = zSum/panel.length;
 		return newPanel;
 	}
 	private void makeCube(int x, int y, int z, int w, int color)
