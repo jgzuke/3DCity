@@ -54,7 +54,7 @@ public class MainActivity extends Activity implements SensorEventListener
 	    double azimuth = values[0];
 	    double pitch = values[1];
 	    double roll = values[2];
-	    control.player.zRotation = roll - Math.PI/2; // y axis
+	    control.player.zRotation = -(roll - Math.PI/2); // y axis
 	    control.player.hRotation = azimuth; // y axis
 	    control.player.tiltRotation = pitch; // x axis
     }

@@ -60,20 +60,20 @@ public final class Player implements OnTouchListener
 		switch(moving)
 		{
 		case -2:
-			x -= Math.sin(hRotation)*5;
-			y += Math.cos(hRotation)*5;
+			x += Math.sin(hRotation)*5;
+			y -= Math.cos(hRotation)*5;
 			break;
 		case -1:
-			x += Math.cos(hRotation)*5;
-			y += Math.sin(hRotation)*5;
-			break;
-		case 1:
 			x -= Math.cos(hRotation)*5;
 			y -= Math.sin(hRotation)*5;
 			break;
+		case 1:
+			x += Math.cos(hRotation)*5;
+			y += Math.sin(hRotation)*5;
+			break;
 		case 2:
-			x += Math.sin(hRotation)*5;
-			y -= Math.cos(hRotation)*5;
+			x -= Math.sin(hRotation)*5;
+			y += Math.cos(hRotation)*5;
 			break;
 		}
 	}

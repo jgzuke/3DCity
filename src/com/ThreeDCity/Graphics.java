@@ -136,21 +136,24 @@ public final class Graphics extends View
 	protected void drawPanel(Panel panel, Canvas g)
 	{
 		ArrayList<double[]> p = getScreenPointSet(panel.points);	// and returns rotations to points
-		if(p.size() > 0)							// if panel was on screen
+		if(p != null)
 		{
-			Path path = new Path();
-			int num = p.size();
-			path.moveTo((int)p.get(num-1)[0], (int)p.get(num-1)[1]);// start at last corner
-			for(int i = 0; i < num; i++)
+			if(p.size() > 0)							// if panel was on screen
 			{
-				path.lineTo((int)p.get(i)[0], (int)p.get(i)[1]); // make lines to each corner
+				Path path = new Path();
+				int num = p.size();
+				path.moveTo((int)p.get(num-1)[0], (int)p.get(num-1)[1]);// start at last corner
+				for(int i = 0; i < num; i++)
+				{
+					path.lineTo((int)p.get(i)[0], (int)p.get(i)[1]); // make lines to each corner
+				}
+				paint.setStyle(Style.FILL);
+				paint.setColor(panel.color);
+				g.drawPath(path, paint);
+				paint.setStyle(Style.STROKE);
+				paint.setColor(Color.BLACK);
+				g.drawPath(path, paint);
 			}
-			paint.setStyle(Style.FILL);
-			paint.setColor(panel.color);
-			g.drawPath(path, paint);
-			paint.setStyle(Style.STROKE);
-			paint.setColor(Color.BLACK);
-			g.drawPath(path, paint);
 		}
 	}
 	/**
@@ -166,6 +169,7 @@ public final class Graphics extends View
 			panelSetDouble[i] = relativeCoordinates(intToDoubleArray(panelSet[i]));
 		}
 		PanelWithVectors panel = new PanelWithVectors(panelSetDouble, this);
+		if(panel.panel == null) return null;
 		ArrayList<double[]> p = new ArrayList<double[]>();
 		for(int i = 0; i < (panelSet.length-1)*3; i++)
 		{
@@ -214,7 +218,7 @@ public final class Graphics extends View
 	{
 		double [] ratios = {coordinates[1]/coordinates[0], coordinates[2]/coordinates[0]};
 		double [] point = {halfScreenSize*ratios[0], 
-								-halfScreenSize*ratios[1]};
+								halfScreenSize*ratios[1]};
 		double [] pointTilted = {	(Math.cos(tRot)*point[0]) - (Math.sin(tRot)*point[1]),
 									(Math.sin(tRot)*point[0]) + (Math.cos(tRot)*point[1])};
 		return pointTilted;
@@ -266,14 +270,41 @@ public final class Graphics extends View
 			points = new PointWithVector[(panelSet.length-1)*3];
 			graphics = graphicsSet;
 			panel = panelSet;
+			boolean botherDrawing = false;
 			for(int i = 0; i < panelSet.length-1; i++)
 			{
-				points[i*3] = new PointWithVector(this, i);
+				if(pointOnScreen(panel[i])) botherDrawing = true;
+			}
+			if(!botherDrawing)
+			{
+				panelSet = null;
+			} else
+			{
+				for(int i = 0; i < panelSet.length-1; i++)
+				{
+					points[i*3] = new PointWithVector(this, i);
+				}
 			}
 		}
 		protected void branchPoint(int index, double[] p1)
 		{
 			points[index+1] = new PointWithVector(p1);
+		}
+		/**
+		 * returns whether the rotation set is in players view
+		 * @param rotationSet	the rotation set to check
+		 * @param view			the view to check if it fits in
+		 * @return				whether it fits in players view
+		 */
+		protected boolean pointOnScreen(double[] point)
+		{
+			// TODO check whether point is actually on screen
+			if(point[0] <= 0.001) return false;
+			double ratioXY = Math.abs(point[1]/point[0]);
+			double ratioXZ = Math.abs(point[2]/point[0]);
+			if(ratioXY>2) return false;
+			if(ratioXZ>2) return false;
+			return true;
 		}
 	}
 	
@@ -298,6 +329,7 @@ public final class Graphics extends View
 	public class PointWithVector
 	{
 	    protected double[] location, previous, next;
+	    protected PanelWithVectors panel;
 	    /**
 	     * constructor for first made four points
 	     * @param panelHandle the whole panel for deletion and branching
@@ -306,6 +338,7 @@ public final class Graphics extends View
 	     */
 	    public PointWithVector(PanelWithVectors panelHandle, int index)
 	    {
+	    	panel = panelHandle;
 	    	location = panelHandle.panel[index];
 	    	if(index == 0)
 	    	{
@@ -321,17 +354,17 @@ public final class Graphics extends View
 	    		next = panelHandle.panel[index+1];
 	    	}
 	    	index *= 3;
-			if(!pointOnScreen(location))
+			if(!panel.pointOnScreen(location))
 			{
 				//TODO
 				double [] p1 = getIntercept(location, previous);
 				double [] p2 = getIntercept(location, next);
-				//double [] p3 = getCorner(location, next, previous);
+				double [] p3 = getCorner(location, next, previous);
 				if(p1 != null && p2 != null)				// if both ways are open
 				{
-					//location = p1;
+					location = p1;
 					//panelHandle.branchPoint(index, p3);
-					//panelHandle.branchPoint(index+1, p2);
+					panelHandle.branchPoint(index+1, p2);
 				}
 				if(p1 == null && p2 == null)				// if neither vector goes into view
 				{
@@ -339,11 +372,11 @@ public final class Graphics extends View
 				}
 				if(p1 != null && p2 == null)				// if only first vector works
 				{
-					//location = p1;
+					location = p1;
 				}
 				if(p1 == null && p2 != null)				// if only second vector works
 				{
-					//location = p2;
+					location = p2;
 				}
 			}
 	    }
@@ -419,7 +452,7 @@ public final class Graphics extends View
 		    	double [] hit = {((sW*start[0])+(eW*end[0])),
     					((sW*start[1])+(eW*end[1])),
     					((sW*start[2])+(eW*end[2]))};
-				if(!pointOnScreen(hit))
+				if(!panel.pointOnScreen(hit))
 				{
 					hitSides[i]=2;
 				}
@@ -448,22 +481,6 @@ public final class Graphics extends View
 	    	if(c<d) return c;
 	    	return d;
 	    }
-		/**
-		 * returns whether the rotation set is in players view
-		 * @param rotationSet	the rotation set to check
-		 * @param view			the view to check if it fits in
-		 * @return				whether it fits in players view
-		 */
-		protected boolean pointOnScreen(double[] point)
-		{
-			// TODO check whether point is actually on screen
-			if(point[0] <= 0.001) return false;
-			double ratioXY = Math.abs(point[1]/point[0]);
-			double ratioXZ = Math.abs(point[2]/point[0]);
-			if(ratioXY>2) return false;
-			if(ratioXZ>2) return false;
-			return true;
-		}
 	    /**
 	     * checks and returns where two lines intercept, as a function
 	     * of distance from starting point, from 0-1, return 2 if they don't
