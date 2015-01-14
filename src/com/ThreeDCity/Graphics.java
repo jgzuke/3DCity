@@ -167,7 +167,7 @@ public final class Graphics extends View
 		}
 		PanelWithVectors panel = new PanelWithVectors(panelSetDouble, this);
 		ArrayList<double[]> p = new ArrayList<double[]>();
-		for(int i = 0; i < (panelSet.length-1)*2; i++)
+		for(int i = 0; i < (panelSet.length-1)*3; i++)
 		{
 			if(panel.points[i] != null)
 			{
@@ -263,17 +263,13 @@ public final class Graphics extends View
 		 */
 		public PanelWithVectors(double[][] panelSet, Graphics graphicsSet)
 		{
-			points = new PointWithVector[(panelSet.length-1)*2];
+			points = new PointWithVector[(panelSet.length-1)*3];
 			graphics = graphicsSet;
 			panel = panelSet;
 			for(int i = 0; i < panelSet.length-1; i++)
 			{
-				points[i*2] = new PointWithVector(this, i);
+				points[i*3] = new PointWithVector(this, i);
 			}
-		}
-		protected void deletePoint(int index)
-		{
-			points[index] = null;
 		}
 		protected void branchPoint(int index, double[] p1)
 		{
@@ -324,19 +320,22 @@ public final class Graphics extends View
 	    		previous = panelHandle.panel[index-1];
 	    		next = panelHandle.panel[index+1];
 	    	}
+	    	index *= 3;
 			if(!pointOnScreen(location))
 			{
 				//TODO
-				double [] p1 = getIntercept(location, previous, panelHandle);
-				double [] p2 = getIntercept(location, next, panelHandle);
+				double [] p1 = getIntercept(location, previous);
+				double [] p2 = getIntercept(location, next);
+				//double [] p3 = getCorner(location, next, previous);
 				if(p1 != null && p2 != null)				// if both ways are open
 				{
 					//location = p1;
-					//panelHandle.branchPoint(index, p2);
+					//panelHandle.branchPoint(index, p3);
+					//panelHandle.branchPoint(index+1, p2);
 				}
 				if(p1 == null && p2 == null)				// if neither vector goes into view
 				{
-					//panelHandle.deletePoint(index);
+					//if(p3 != null) location = p3;
 				}
 				if(p1 != null && p2 == null)				// if only first vector works
 				{
@@ -357,12 +356,31 @@ public final class Graphics extends View
 	    	location = point;
 	    }
 	    /**
+	     * get where line hits panel for corner lines. 
+	     * @param start starting point to test
+	     * @param end ending point
+	     * @param panel
+	     * @return
+	     */
+	    private double[] getCorner(double [] point, double [] next, double [] prev)
+	    {
+	    	double [] corner = {10000, point[1]/Math.abs(point[1])*20000, point[2]/Math.abs(point[2])*20000};	// x and y
+	    	double [] v1 = {point[0]-next[0], point[1]-next[1], point[2]-next[2]};
+	    	double [] v2 = {point[0]-prev[0], point[1]-prev[1], point[2]-prev[2]};
+	    	double [] norm = {(v1[1]*v2[2])-(v1[2]*v2[1]), (v1[2]*v2[0])-(v1[0]*v2[2]), (v1[0]*v2[1])-(v1[1]*v2[0])};
+	    	double k = (v1[0]*norm[0]) + (v1[1]*norm[1]) + (v1[2]*norm[2]);
+	    	double b = (corner[0]*norm[0]) + (v1[1]*corner[1]) + (v1[2]*corner[2]);
+	    	double ratio = k/b;
+	    	double [] intercept = {corner[0]*ratio, corner[1]*ratio, corner[2]*ratio};
+	    	return intercept;
+	    }
+	    /**
 	     * get where line first comes into view, if it doesn't, return null
 	     * @param p1 the location of the point
 	     * @param p2 location of the next point
 	     * @return where line first hits players view, starting at location
 	     */
-	    public double[] getIntercept(double [] start, double [] end, PanelWithVectors panel)
+	    public double[] getIntercept(double [] start, double [] end)
 	    {
 			double [] startXY = {start[0], start[1]};
 	    	double [] endXY = {end[0], end[1]};
