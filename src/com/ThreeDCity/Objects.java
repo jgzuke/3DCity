@@ -36,10 +36,29 @@ public final class Objects
 	{
 		int a = 10000;
 		makeJZ();
+		makeArrow(500, 0, 0);
+		makeArrow(-500, 0, 0);
+		makeArrow(500, -1500, 0);
+		makeArrow(-500, -1500, 0);
+		makeArrow(500, -2500, 0);
+		makeArrow(-500, -2500, 0);
 		makeCube(425, 200, 50, 50, Color.rgb(200, 100, 200));
 		makeCube(825, 200, 50, 50, Color.rgb(200, 100, 100));
 		makeCube(425, -200, 50, 50, Color.rgb(100, 200, 100));
 		makeCube(825, -200, 50, 50, Color.rgb(100, 100, 200));
+	}
+	private void makeArrow(int y, int x, int z)
+	{
+		int [][] arrow = { 
+				{x+37, y, z+100}, 
+				{x+150, y, z+200}, 
+				{x+37, y, z+300}, 
+				{x+37, y, z+239}, 
+				{x-150, y, z+239}, 
+				{x-150, y, z+161}, 
+				{x+37, y, z+161}
+			};
+		makePanel(addMid(arrow), Color.rgb(255, 255, 0));
 	}
 	private void makeJZ()
 	{
