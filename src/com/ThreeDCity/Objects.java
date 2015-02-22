@@ -35,6 +35,7 @@ public final class Objects
 	private void makeBackGround()
 	{
 		int a = 10000;
+		makePanel(-a, -a, 0, -a, a, 0, a, a, 0, a, -a, 0, Color.rgb(200, 100, 200));
 		makeJZ();
 		makeArrow(500, 0, 0);
 		makeArrow(-500, 0, 0);
