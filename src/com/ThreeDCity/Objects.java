@@ -47,6 +47,27 @@ public final class Objects
 		makeCube(425, -200, 50, 50, Color.rgb(100, 200, 100));
 		makeCube(825, -200, 50, 50, Color.rgb(100, 100, 200));
 	}
+	private int returnPatternIndex(String s)
+	{
+		if(s.equals("ground")) {
+			return 0;
+		} else if(s.equals("ground")) {
+			return 1;
+		} else if(s.equals("ground")) {
+			return 2;
+		} else if(s.equals("ground")) {
+			return 3;
+		} else if(s.equals("ground")) {
+			return 4;
+		} else if(s.equals("ground")) {
+			return 5;
+		} else if(s.equals("ground")) {
+			return 6;
+		} else
+		{
+			return 7;
+		}
+	}
 	private void makeArrow(int y, int x, int z)
 	{
 		int [][] arrow = { 
